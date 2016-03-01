@@ -25,11 +25,11 @@ namespace CUBOS
 
         #region Initialize Rock properties
         //The gridding technique used here is for the whole grid
-        public int Kx_data, Ky_data, Kz_data;
+        public double Kx_data, Ky_data, Kz_data;
         public double porosity, compressibility_rock;
 
-        public int[] Kx_data_array, Ky_data_array, Kz_data_array;
-        public double[] porosity_array, compressibility_rock_array;
+        public double[] Kx_data_array, Ky_data_array, Kz_data_array;
+        public double[] porosity_array;
 
         #endregion
 

@@ -13,9 +13,10 @@ namespace PetSim3
         static void Main(string[] args)
         {
             //initialize the simulator
-
-
-            Initialize.initializeSimulationSinglePhase();
+            SimulatorData data;
+            data = DataEntry.ReadData("");
+            Initialize.initializeSimulationSinglePhase(data);
+            //Initialize.initializeSimulationSinglePhase();
 
             Console.ReadKey();
         }   

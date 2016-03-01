@@ -120,24 +120,23 @@ namespace CUBOS
 
                 if (simulator_data.homogeneous)
                 {
-                    simulator_data.Kx_data = int.Parse(dictionary["Kx"]); simulator_data.Ky_data = int.Parse(dictionary["Ky"]); simulator_data.Kz_data = int.Parse(dictionary["Kz"]);
-                    simulator_data.porosity = int.Parse(dictionary["porosity"]);
-                    simulator_data.compressibility_rock = int.Parse(dictionary["compressibility_rock"]);
+                    simulator_data.Kx_data = double.Parse(dictionary["Kx"]); simulator_data.Ky_data = double.Parse(dictionary["Ky"]); simulator_data.Kz_data = double.Parse(dictionary["Kz"]);
+                    simulator_data.porosity = double.Parse(dictionary["porosity"]);
+                    simulator_data.compressibility_rock = double.Parse(dictionary["compressibility_rock"]);
                 }
                 else
                 {
                     //Kx values
-                    simulator_data.Kx_data_array = getArrayFromDictionary_int(dictionary, "Kx");
+                    simulator_data.Kx_data_array = getArrayFromDictionary_double(dictionary, "Kx");
 
                     //Ky values
-                    simulator_data.Ky_data_array = getArrayFromDictionary_int(dictionary, "Ky");
+                    simulator_data.Ky_data_array = getArrayFromDictionary_double(dictionary, "Ky");
 
                     //Kz values
-                    simulator_data.Kz_data_array = getArrayFromDictionary_int(dictionary, "Kz");
+                    simulator_data.Kz_data_array = getArrayFromDictionary_double(dictionary, "Kz");
 
                     //Porosity values
                     simulator_data.porosity_array = getArrayFromDictionary_double(dictionary, "porosity");
-                    simulator_data.compressibility_rock_array = getArrayFromDictionary_double(dictionary, "compressibility_rock");
                 }
 
                 #endregion
