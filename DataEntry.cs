@@ -90,13 +90,7 @@ namespace CUBOS
                 key = "inactive_blocks";
                 if (dictionary.ContainsKey(key))
                 {
-                    string[] inactive_blocks = dictionary[key].Split(',');
-                    List<int> temp_list = new List<int>();
-                    for (int i = 0; i < inactive_blocks.Length; i++)
-                    {
-                        temp_list.Add(int.Parse(inactive_blocks[i]));
-                    }
-                    simulator_data.inactive_blocks = temp_list.ToArray();
+                    simulator_data.inactive_blocks = getArrayFromDictionary_int(dictionary, key);
                 }
 
                 if (simulator_data.homogeneous == true)
@@ -107,39 +101,14 @@ namespace CUBOS
                 }
                 else
                 {
-                    List<int> temp_list = new List<int>();
-
                     //Delta x values
-                    string[] delta_x_array = dictionary["delta_x"].Split(',');
-                    for (int i = 0; i < delta_x_array.Length; i++)
-                    {
-                        temp_list.Add(int.Parse(delta_x_array[i]));
-                    }
-                    simulator_data.delta_X_array = temp_list.ToArray();
-                    //Empty the list before reuse
-                    temp_list.Clear();
+                    simulator_data.delta_X_array = getArrayFromDictionary_int(dictionary, "delta_x");
 
                     //Delta y values
-                    string[] delta_y_array = dictionary["delta_y"].Split(',');
-                    temp_list = new List<int>();
-                    for (int i = 0; i < delta_y_array.Length; i++)
-                    {
-                        temp_list.Add(int.Parse(delta_y_array[i]));
-                    }
-                    simulator_data.delta_Y_array = temp_list.ToArray();
-                    //Empty the list before reuse
-                    temp_list.Clear();
+                    simulator_data.delta_Y_array = getArrayFromDictionary_int(dictionary, "delta_y");
 
                     //Heights values
-                    string[] delta_z_array = dictionary["height"].Split(',');
-                    temp_list = new List<int>();
-                    for (int i = 0; i < delta_z_array.Length; i++)
-                    {
-                        temp_list.Add(int.Parse(delta_z_array[i]));
-                    }
-                    simulator_data.delta_Z_array = temp_list.ToArray();
-                    //Empty the list before reuse
-                    temp_list.Clear();
+                    simulator_data.delta_Z_array = getArrayFromDictionary_int(dictionary, "delta_z");
 
                 }
 
@@ -152,6 +121,7 @@ namespace CUBOS
                 else
                 {
                     List<int> temp_list = new List<int>();
+                    List<double> temp_list_double = new List<double>();
 
                     //Kx values
                     string[] Kx_array = dictionary["Kx"].Split(',');
@@ -165,7 +135,6 @@ namespace CUBOS
 
                     //Ky values
                     string[] Ky_array = dictionary["Ky"].Split(',');
-                    temp_list = new List<int>();
                     for (int i = 0; i < Ky_array.Length; i++)
                     {
                         temp_list.Add(int.Parse(Ky_array[i]));
@@ -176,7 +145,6 @@ namespace CUBOS
 
                     //Kz values
                     string[] Kz_array = dictionary["Kz"].Split(',');
-                    temp_list = new List<int>();
                     for (int i = 0; i < Kz_array.Length; i++)
                     {
                         temp_list.Add(int.Parse(Kz_array[i]));
@@ -184,8 +152,52 @@ namespace CUBOS
                     simulator_data.Kz_data_array = temp_list.ToArray();
                     //Empty the list before reuse
                     temp_list.Clear();
+
+                    //Porosity values
+                    string[] porosity_array = dictionary["porosity"].Split(',');
+                    for (int i = 0; i < porosity_array.Length; i++)
+                    {
+                        temp_list.Add(int.Parse(porosity_array[i]));
+                    }
+                    simulator_data.porosity_array = temp_list_double.ToArray();
+                    //Empty the list before reuse
+                    temp_list_double.Clear();
                 }
             }
+        }
+
+        public static double[] getArrayFromDictionary_double(Dictionary<string, string> dictionary, string key)
+        {
+            double[] temp_array;
+            List<double> temp_list = new List<double>();
+
+            string[] string_array = dictionary[key].Split(',');
+            
+            for (int i = 0; i < string_array.Length; i++)
+            {
+                temp_list.Add(double.Parse(string_array[i]));
+            }
+
+            temp_array = temp_list.ToArray();
+
+            return temp_array;
+        }
+
+        public static int[] getArrayFromDictionary_int(Dictionary<string, string> dictionary, string key)
+        {
+            int[] temp_array;
+            List<int> temp_list = new List<int>();
+
+            string[] string_array = dictionary[key].Split(',');
+
+            for (int i = 0; i < string_array.Length; i++)
+            {
+                temp_list.Add(int.Parse(string_array[i]));
+            }
+
+            temp_array = temp_list.ToArray();
+
+            return temp_array;
         }
     }
 }
