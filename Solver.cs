@@ -10,6 +10,9 @@ namespace CUBOS
 {
     class SolverSinglePhase
     {
+        //this variable is used when determining if a weel is capable of producing fluid under the specified flow rate
+        private static bool skip;
+
         //#############################################################################################
         //Method Name: incompressible
         //Objectives: Solver for the single-phase incompressible fluid
@@ -161,6 +164,7 @@ namespace CUBOS
 
             for (double current_time = 0; current_time < time_max; current_time += delta_t)
             {
+                skip = false;
 
                 #region grid blocks loop
                 for (int i = 0; i < grid_length; i++)
@@ -264,21 +268,42 @@ namespace CUBOS
 
                 new_P = solveForP(matrix_P, matrix_C);
 
-                //for (int i = 0; i < wells.Length; i++)
-                //{
-                //    if (wells[i].type == Well.TypeCalculation.Specified_Flow_Rate)
-                //    {
-                //        if (new_P[i] < wells[i].)
-                //        {
+                #region This code handle the transformation of a specified flow_rate well into a specified BHP well
+                for (int i = 0; i < grid.Length; i++)
+                {
+                    block = grid[i];
+                    if (block.type == GridBlock.Type.Well_Production)
+                    {
+                        if (block.well_type == GridBlock.WellType.Specified_Flow_Rate)
+                        {
+                            double BHP = new_P[i] - block.specified_flow_rate / block.well_transmissibility;
+                            if (BHP > block.BHP_minimum)
+                            {
+                                block.BHP = BHP;
+                            }
+                            //If the well can no longer produce the fluid at the specified flow rate, convert the well to a specified BHP type
+                            //
+                            else
+                            {
+                                block.well_type = GridBlock.WellType.Specified_BHP;
+                                block.BHP = block.BHP_minimum;
+                                //Re do this iteration as the BHP of the well went below the minimum
+                                current_time -= delta_t;
+                                skip = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                #endregion
 
-                //        }
-                //    }
-                //}
 
-                update_properties_chord_slope(new_P, grid);
-
-                Console.WriteLine(new_P[0] + ", " + new_P[1] + ", " + new_P[2] + ", " + new_P[3]);
-                Console.ReadKey();
+                if (!skip)
+                {
+                    update_properties_chord_slope(new_P, grid);
+                    Console.WriteLine(new_P[0] + ", " + new_P[1] + ", " + new_P[2] + ", " + new_P[3]);
+                    Console.ReadKey();
+                }
             }
 
         }
@@ -476,11 +501,42 @@ namespace CUBOS
                 }
 
 
-                //Update Properties
-                update_properties_compressible(new_P, grid, pvt);
+                #region This code handle the transformation of a specified flow_rate well into a specified BHP well
+                for (int i = 0; i < grid.Length; i++)
+                {
+                    block = grid[i];
+                    if (block.type == GridBlock.Type.Well_Production)
+                    {
+                        if (block.well_type == GridBlock.WellType.Specified_Flow_Rate)
+                        {
+                            double BHP = new_P[i] - block.specified_flow_rate / block.well_transmissibility;
+                            if (BHP > block.BHP_minimum)
+                            {
+                                block.BHP = BHP;
+                            }
+                            //If the well can no longer produce the fluid at the specified flow rate, convert the well to a specified BHP type
+                            //
+                            else
+                            {
+                                block.well_type = GridBlock.WellType.Specified_BHP;
+                                block.BHP = block.BHP_minimum;
+                                //Re do this iteration as the BHP of the well went below the minimum
+                                current_time -= delta_t;
+                                skip = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                #endregion
 
-                Console.WriteLine(new_P[0] + ", " + new_P[1] + ", " + new_P[2] + ", " + new_P[3]);
-                Console.ReadKey();
+
+                if (!skip)
+                {
+                    update_properties_compressible(new_P, grid, pvt);
+                    Console.WriteLine(new_P[0] + ", " + new_P[1] + ", " + new_P[2] + ", " + new_P[3]);
+                    Console.ReadKey();
+                }
             }
 
         }

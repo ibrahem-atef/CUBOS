@@ -15,8 +15,8 @@ namespace CUBOS
         public static void initializeSimulationSinglePhase()
         {
             #region Initialize Rectangular grid dimensions
-            bool homogeneous = true;
-            int x = 4, y = 1, z = 1;
+            bool homogeneous = false;
+            int x = 5, y = 1, z = 1;
 
             int[] inactive_blocks = new int[] { };
 
@@ -27,7 +27,12 @@ namespace CUBOS
             int size = x * y * z;
             //calculates the size of the active-blocks only
             int size_active = x * y * z - inactive_blocks.Length;
-            size = size_active;
+
+            //use this if the natural ordering excludes inactive blocks
+            if (inactive_blocks.Length > 0)
+            {
+                size = size_active;
+            }
 
             GridBlock[] grid;
             #endregion
@@ -50,12 +55,10 @@ namespace CUBOS
             {
                 //General grid values
                 for (int i = 0; i < x; i++) { delta_X[i] = 300; }
-                for (int i = 0; i < y; i++) { delta_Y[i] = 350; }
-                for (int i = 0; i < z; i++) { delta_Z[i] = 40; }
+                for (int i = 0; i < y; i++) { delta_Y[i] = 500; }
+                for (int i = 0; i < z; i++) { delta_Z[i] = 50; }
                 //Specific heterogenities
                 delta_X = new int[] { 400, 300, 150, 200, 250 };
-                delta_Y[0] = 300;
-                delta_Z[0] = 50;
             }
             #endregion
 
@@ -93,19 +96,19 @@ namespace CUBOS
                 }
                 //Specific heterogenities
                 Kx_data = new double[] { 273, 248, 127, 333, 198 };
-                Ky_data[0] = 200;
+                Ky_data = Kx_data;
                 porosity = new double[] { 0.21, 0.17, 0.1, 0.25, 0.13 };
-                compressibility_rock = 0.000002;
+                compressibility_rock = 0;
             }
             #endregion
 
             #region Initialize PVT
 
             double FVF = 1;
-            double viscosity = 0.5;
+            double viscosity = 1.5;
 
             //For slightly-compressibly fluid
-            double compressibility_fluid = 0.00001;
+            double compressibility_fluid = 2.5 * Math.Pow(10, -5);
 
             //For compressible fluid, this data is used for constructing the PVT table
             double[][] g_data = new double[4][];
@@ -119,7 +122,7 @@ namespace CUBOS
 
             #region  Initialize boundary conditions
 
-            int initial_pressure = 4000;
+            int initial_pressure = 3000;
 
             double[] boundary_flow_rate = new double[size];
             double[] boundary_pressure_x = new double[size];
@@ -128,7 +131,7 @@ namespace CUBOS
             double[] boundary_pressure_gradient_y = new double[size];
 
 
-            boundary_pressure_x[0] = 4000;
+            //boundary_pressure_x[0] = 4000;
             //boundary_flow_rate[0] = -500;
             //boundary_flow_rate[3] = 200;
             //boundary_pressure_gradient_x[1] = 0.3; boundary_pressure_gradient_x[3] = 0.3;
@@ -147,7 +150,10 @@ namespace CUBOS
                     well = new Well();
 
                     well.type_calculation = Well.TypeCalculation.Specified_Flow_Rate;
-                    well.specified_flow_rate = 600;
+                    well.specified_flow_rate = 400;
+                    well.specified_BHP = 1500;
+                    well.skin = 0;
+                    well.rw = 3;
                     well.type = Well.Type.Production;
                     //Add the well to the array
                     wells[i] = well;
@@ -185,8 +191,8 @@ namespace CUBOS
             var grid_type = Transmissibility.GridType.Rectangular;
 
             //For compressible and slightly-compressible fluids, define the values for time steps and total simulation time
-            double delta_t = 1;
-            double time_max = 90;
+            double delta_t = 5;
+            double time_max = 180;
 
             //For compressible fluid problems
             double convergence_pressure = 0.001;
@@ -307,6 +313,11 @@ namespace CUBOS
                         block.well_type = GridBlock.WellType.Specified_Flow_Rate;
                         block.specified_flow_rate = well.specified_flow_rate;
                         block.BHP_minimum = well.specified_BHP;
+
+                        block.rw = well.rw;
+                        double well_geometric_factor = Well.getGeometricFactor(block);
+                        block.well_geometric_factor = well_geometric_factor;
+                        block.well_transmissibility = Well.getTransmissibility(block, well_geometric_factor, Well.Phase.Water);
                     }
                     else
                     {
