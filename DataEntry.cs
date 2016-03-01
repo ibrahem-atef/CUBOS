@@ -31,12 +31,31 @@ namespace CUBOS
                 {
                     //a single line line
                     string line = data_array[i];
+                    //Check if the line begins with a "#", then it's a comment and the line should be skipped
+                    if (line.Length > 0)
+                    {
+                        if (line.First() == '#')
+                        {
+                            continue;
+                        }
+                    }
+                    
 
                     int end_of_key = line.IndexOf("=");
                     if (end_of_key >= 0)
                     {
                         string key = line.Substring(0, end_of_key);
+                        //Remove white space before the "=" sign
+                        while (key.Contains(" "))
+                        {
+                            key = key.Remove(key.IndexOf(' '), 1);
+                        }
                         string value = line.Substring(end_of_key + 1);
+                        //Remove white space before the "=" sign
+                        while (value.Contains(" "))
+                        {
+                            value = value.Remove(value.IndexOf(' '), 1);
+                        }
                         if (!dictionary.ContainsKey(key))
                         {
                             dictionary.Add(key, value);
@@ -63,7 +82,7 @@ namespace CUBOS
             //a dictionary to store the data read from the file in a key-value pairs format
             Dictionary<string, string> dictionary = ReadFile(file_name);
             SimulatorData simulator_data = new SimulatorData();
-            string key;
+            String key;
 
             if (dictionary != null)
             {
@@ -95,6 +114,7 @@ namespace CUBOS
                     simulator_data.inactive_blocks = getArrayFromDictionary_int(dictionary, key);
                 }
 
+                //Block dimensions
                 if (simulator_data.homogeneous == true)
                 {
                     simulator_data.delta_X = int.Parse(dictionary["delta_x"]);
@@ -137,6 +157,9 @@ namespace CUBOS
 
                     //Porosity values
                     simulator_data.porosity_array = getArrayFromDictionary_double(dictionary, "porosity");
+
+                    //Rock Compressiblity
+                    simulator_data.compressibility_rock = double.Parse(dictionary["compressibility_rock"]);
                 }
 
                 #endregion
@@ -227,7 +250,7 @@ namespace CUBOS
                 {
                     Well well = new Well();
 
-                    double[] well_data = getArrayFromDictionary_double(dictionary, "well" + i);
+                    double[] well_data = getArrayFromDictionary_double(dictionary, "well_" + i);
                     well.rw = well_data[0]; well.skin = well_data[1]; well.specified_BHP = well_data[2]; well.specified_flow_rate = well_data[3];
                     well.type = well_data[4] == 0 ? Well.Type.Injection : Well.Type.Production;
                     well.type_calculation = well_data[5] == 0 ? Well.TypeCalculation.Specified_BHP : Well.TypeCalculation.Specified_Flow_Rate;
@@ -313,12 +336,20 @@ namespace CUBOS
         {
             double[] temp_array;
             List<double> temp_list = new List<double>();
+            string value = dictionary[key];
 
-            string[] string_array = dictionary[key].Split(',');
-            
-            for (int i = 0; i < string_array.Length; i++)
+            if (value.Contains(","))
             {
-                temp_list.Add(double.Parse(string_array[i]));
+                string[] string_array = value.Split(',');
+
+                for (int i = 0; i < string_array.Length; i++)
+                {
+                    temp_list.Add(double.Parse(string_array[i]));
+                }
+            }
+            else
+            {
+                temp_list.Add(double.Parse(value));
             }
 
             temp_array = temp_list.ToArray();
@@ -334,12 +365,20 @@ namespace CUBOS
         {
             int[] temp_array;
             List<int> temp_list = new List<int>();
+            string value = dictionary[key];
 
-            string[] string_array = dictionary[key].Split(',');
-
-            for (int i = 0; i < string_array.Length; i++)
+            if (value.Contains(","))
             {
-                temp_list.Add(int.Parse(string_array[i]));
+                string[] string_array = value.Split(',');
+
+                for (int i = 0; i < string_array.Length; i++)
+                {
+                    temp_list.Add(int.Parse(string_array[i]));
+                }
+            }
+            else
+            {
+                temp_list.Add(int.Parse(value));
             }
 
             temp_array = temp_list.ToArray();
