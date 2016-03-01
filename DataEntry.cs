@@ -239,6 +239,19 @@ namespace CUBOS
                 #endregion
 
                 #region Run Specs
+                key = "natural_ordering";
+                if (dictionary.ContainsKey(key))
+                {
+                    if (dictionary[key] == "all_blocks")
+                    {
+                        simulator_data.natural_ordering = SimulatorData.NaturalOrdering.All_Blocks;
+                    }
+                    else if (dictionary[key] == "active_only")
+                    {
+                        simulator_data.natural_ordering = SimulatorData.NaturalOrdering.Active_Only;
+                    }
+                }
+
                 key = "single_phase_compressibility";
                 if (dictionary.ContainsKey(key))
                 {
@@ -289,8 +302,14 @@ namespace CUBOS
                 }
                 #endregion
             }
+
+            return simulator_data;
         }
 
+        //Method Name: getArrayFromDictionary_double
+        //Objectives: gets an array of doubles out of a dictionary of key-value pairs of strings in which the key is a single string "Key", and the value is a comma separated strings [value = "double1", "double2", ..]
+        //Inputs: the dictionary and the key string
+        //Outputs: an array of doubles
         public static double[] getArrayFromDictionary_double(Dictionary<string, string> dictionary, string key)
         {
             double[] temp_array;
@@ -308,6 +327,10 @@ namespace CUBOS
             return temp_array;
         }
 
+        //Method Name: getArrayFromDictionary_int
+        //Objectives: gets an array of integers out of a dictionary of key-value pairs of strings in which the key is a single string "Key", and the value is a comma separated strings [value = "double1", "double2", ..]
+        //Inputs: the dictionary and the key string
+        //Outputs: an array of integers
         public static int[] getArrayFromDictionary_int(Dictionary<string, string> dictionary, string key)
         {
             int[] temp_array;

@@ -63,6 +63,8 @@ namespace CUBOS
         #endregion
 
         #region run specifications
+        public enum NaturalOrdering { All_Blocks, Active_Only}
+        public NaturalOrdering natural_ordering;
         public TypeDefinitions.Compressibility compressibility;
         Transmissibility.Phase phase;
         public Transmissibility.GridType grid_type;

@@ -10,9 +10,9 @@ namespace CUBOS
     {
         //Method Name: initializeSimulationSinglePhase
         //Objectives: reads the data and assign the values to the blocks after constructing the grid and starting the solver
-        //Inputs: N/A
+        //Inputs: a variable of type "SimulatorData" that contains all the simulation data read from the data input file
         //Outpits: N/A
-        public static void initializeSimulationSinglePhase()
+        public static void initializeSimulationSinglePhase(SimulatorData data)
         {
             #region Initialize Rectangular grid dimensions
             bool homogeneous = false;
