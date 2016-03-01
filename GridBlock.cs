@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SinglePhase
+namespace CUBOS
 {
     class GridBlock
     {
@@ -19,7 +19,7 @@ namespace SinglePhase
         public int east_counter, west_counter, north_counter, south_counter, top_counter, bottom_counter;
 
         //Well data
-        public enum Type { Normal, Well, Inactive};
+        public enum Type { Normal, Well_Injection, Well_Production, Inactive};
         public enum WellType { Specified_Flow_Rate, Specified_BHP}
         public Type type;
         public WellType well_type;

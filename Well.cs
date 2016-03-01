@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SinglePhase
+namespace CUBOS
 {
     class Well
     {
@@ -16,7 +16,9 @@ namespace SinglePhase
         private const double Bc = 0.001127;
 
         //Variables of a variable of type "Well" instance
-        public enum Type { Specified_Flow_Rate, Specified_BHP, Inactive}
+        public enum TypeCalculation { Specified_Flow_Rate, Specified_BHP, Inactive}
+        public TypeCalculation type_calculation;
+        public enum Type { Production, Injection}
         public Type type;
         public double rw;
         public double skin;
@@ -24,9 +26,10 @@ namespace SinglePhase
         public double specified_BHP;
 
         //constructor with default values set
-        public Well(Type well_type = Type.Specified_Flow_Rate, double rw = 3.0, double skin = 0, double specified_flow_rate = 1000, double specified_BHP = 3000)
+        public Well(TypeCalculation well_type_calculation = TypeCalculation.Specified_Flow_Rate, double rw = 3.0, double skin = 0, double specified_flow_rate = 1000, double specified_BHP = 3000, Type type = Type.Production)
         {
-            this.type = well_type;
+            this.type = type;
+            this.type_calculation = well_type_calculation;
             this.rw = rw;
             this.skin = skin;
             this.specified_flow_rate = specified_flow_rate;

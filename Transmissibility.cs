@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SinglePhase
+namespace CUBOS
 {
     //Notes: a variable of type "GridType" to represent if the grid is rectangular or cylindrical
     //Notes: a variable of type "Direction" to represent the direction of flow (x, y or z) for rectangular grids and (r, theta, z) for cylindrical grids

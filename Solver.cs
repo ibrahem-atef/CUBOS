@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SinglePhase
+namespace CUBOS
 {
-    class Solver
+    class SolverSinglePhase
     {
         //#############################################################################################
         //Method Name: incompressible
@@ -93,7 +93,22 @@ namespace SinglePhase
 
                 //#########################################################################################
                 //check well rates
-                if (block.type == GridBlock.Type.Well)
+                //Production
+                if (block.type == GridBlock.Type.Well_Production)
+                {
+                    //Check for specified BHP condition
+                    if (block.well_type == GridBlock.WellType.Specified_BHP)
+                    {
+                        constants -= block.well_transmissibility * block.BHP;
+                        temp -= block.well_transmissibility;
+                    }
+                    else
+                    {
+                        constants += block.specified_flow_rate;
+                    }
+                }
+                //Injection
+                else
                 {
                     //Check for specified BHP condition
                     if (block.well_type == GridBlock.WellType.Specified_BHP)
@@ -134,11 +149,6 @@ namespace SinglePhase
 
             const double a = 5.614583;
             double accumulation_term;
-
-            //Parallel.For(0, grid_length, (i) => {
-
-            //});
-
 
             GridBlock block;
             GridBlock next_block;
@@ -211,7 +221,22 @@ namespace SinglePhase
 
                     //#########################################################################################
                     //check well rates
-                    if (block.type == GridBlock.Type.Well)
+                    //Production
+                    if (block.type == GridBlock.Type.Well_Production)
+                    {
+                        //Check for specified BHP condition
+                        if (block.well_type == GridBlock.WellType.Specified_BHP)
+                        {
+                            constants -= block.well_transmissibility * block.BHP;
+                            temp -= block.well_transmissibility;
+                        }
+                        else
+                        {
+                            constants += block.specified_flow_rate;
+                        }
+                    }
+                    //Injection
+                    else
                     {
                         //Check for specified BHP condition
                         if (block.well_type == GridBlock.WellType.Specified_BHP)
@@ -241,7 +266,7 @@ namespace SinglePhase
 
                 //for (int i = 0; i < wells.Length; i++)
                 //{
-                //    if (wells[i].type == Well.Type.Specified_Flow_Rate)
+                //    if (wells[i].type == Well.TypeCalculation.Specified_Flow_Rate)
                 //    {
                 //        if (new_P[i] < wells[i].)
                 //        {
@@ -380,7 +405,8 @@ namespace SinglePhase
 
                         //#########################################################################################
                         //check well rates
-                        if (block.type == GridBlock.Type.Well)
+                        //Production
+                        if (block.type == GridBlock.Type.Well_Production)
                         {
                             //Check for specified BHP condition
                             if (block.well_type == GridBlock.WellType.Specified_BHP)
@@ -393,7 +419,20 @@ namespace SinglePhase
                                 constants += block.specified_flow_rate;
                             }
                         }
-
+                        //Injection
+                        else
+                        {
+                            //Check for specified BHP condition
+                            if (block.well_type == GridBlock.WellType.Specified_BHP)
+                            {
+                                constants -= block.well_transmissibility * block.BHP;
+                                temp -= block.well_transmissibility;
+                            }
+                            else
+                            {
+                                constants += block.specified_flow_rate;
+                            }
+                        }
 
                         //#########################################################################################
                         //Accumulation terms

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CUBOS
+namespace PetSim3
 {
-    class MBE
+    class ReadFile
     {
     }
 }

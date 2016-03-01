@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SinglePhase
+namespace CUBOS
 {
     //Method_1 Name: lookUp
     //Objectives: this is a private (internal method for the internal use of this class only) method that makes table lookup interpolation
