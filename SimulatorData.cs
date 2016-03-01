@@ -47,7 +47,7 @@ namespace CUBOS
 
         #region  Initialize boundary conditions
 
-        public int initial_pressure;
+        public double initial_pressure;
 
         public double[] boundary_flow_rate;
         public double[] boundary_pressure_x;
@@ -59,13 +59,13 @@ namespace CUBOS
 
         #region  Initialize wells data
         public int[] well_locations;
-
+        public Well[] well_array;
         #endregion
 
         #region run specifications
-        TypeDefinitions.Compressibility compressibility;
+        public TypeDefinitions.Compressibility compressibility;
         Transmissibility.Phase phase;
-        Transmissibility.GridType grid_type;
+        public Transmissibility.GridType grid_type;
 
         //For compressible and slightly-compressible fluids, define the values for time steps and total simulation time
         public double delta_t = 5;

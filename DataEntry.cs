@@ -67,6 +67,8 @@ namespace CUBOS
 
             if (dictionary != null)
             {
+                #region Grid
+
                 key = "homogeneous";
                 if (dictionary.ContainsKey(key))
                 {
@@ -112,6 +114,10 @@ namespace CUBOS
 
                 }
 
+                #endregion
+
+                #region Rock Properties
+
                 if (simulator_data.homogeneous)
                 {
                     simulator_data.Kx_data = int.Parse(dictionary["Kx"]); simulator_data.Ky_data = int.Parse(dictionary["Ky"]); simulator_data.Kz_data = int.Parse(dictionary["Kz"]);
@@ -120,49 +126,168 @@ namespace CUBOS
                 }
                 else
                 {
-                    List<int> temp_list = new List<int>();
-                    List<double> temp_list_double = new List<double>();
-
                     //Kx values
-                    string[] Kx_array = dictionary["Kx"].Split(',');
-                    for (int i = 0; i < Kx_array.Length; i++)
-                    {
-                        temp_list.Add(int.Parse(Kx_array[i]));
-                    }
-                    simulator_data.Kx_data_array = temp_list.ToArray();
-                    //Empty the list before reuse
-                    temp_list.Clear();
+                    simulator_data.Kx_data_array = getArrayFromDictionary_int(dictionary, "Kx");
 
                     //Ky values
-                    string[] Ky_array = dictionary["Ky"].Split(',');
-                    for (int i = 0; i < Ky_array.Length; i++)
-                    {
-                        temp_list.Add(int.Parse(Ky_array[i]));
-                    }
-                    simulator_data.Ky_data_array = temp_list.ToArray();
-                    //Empty the list before reuse
-                    temp_list.Clear();
+                    simulator_data.Ky_data_array = getArrayFromDictionary_int(dictionary, "Ky");
 
                     //Kz values
-                    string[] Kz_array = dictionary["Kz"].Split(',');
-                    for (int i = 0; i < Kz_array.Length; i++)
-                    {
-                        temp_list.Add(int.Parse(Kz_array[i]));
-                    }
-                    simulator_data.Kz_data_array = temp_list.ToArray();
-                    //Empty the list before reuse
-                    temp_list.Clear();
+                    simulator_data.Kz_data_array = getArrayFromDictionary_int(dictionary, "Kz");
 
                     //Porosity values
-                    string[] porosity_array = dictionary["porosity"].Split(',');
-                    for (int i = 0; i < porosity_array.Length; i++)
-                    {
-                        temp_list.Add(int.Parse(porosity_array[i]));
-                    }
-                    simulator_data.porosity_array = temp_list_double.ToArray();
-                    //Empty the list before reuse
-                    temp_list_double.Clear();
+                    simulator_data.porosity_array = getArrayFromDictionary_double(dictionary, "porosity");
+                    simulator_data.compressibility_rock_array = getArrayFromDictionary_double(dictionary, "compressibility_rock");
                 }
+
+                #endregion
+
+                #region PVT
+                key = "FVF";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.FVF = double.Parse(dictionary[key]);
+                }
+
+                key = "viscosity";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.viscosity = double.Parse(dictionary[key]);
+                }
+
+                key = "compressibility_fluid";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.compressibility_fluid = double.Parse(dictionary[key]);
+                }
+
+                key = "g_data_pressure";
+                if (dictionary.ContainsKey(key))
+                {
+                    //pressure
+                    simulator_data.g_data[0] = getArrayFromDictionary_double(dictionary, "g_data_pressure");
+                    //FVF
+                    simulator_data.g_data[1] = getArrayFromDictionary_double(dictionary, "g_data_FVF");
+                    //Viscosity
+                    simulator_data.g_data[2] = getArrayFromDictionary_double(dictionary, "g_data_viscosity");
+                    //Density
+                    simulator_data.g_data[3] = getArrayFromDictionary_double(dictionary, "g_data_density");
+                }
+                #endregion
+
+                #region Boundary Conditions
+                key = "initial_pressure";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.initial_pressure = double.Parse(dictionary[key]);
+                }
+
+                key = "boundary_flow_rate";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.boundary_flow_rate = getArrayFromDictionary_double(dictionary, key);
+                }
+
+                key = "boundary_pressure_x";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.boundary_pressure_x = getArrayFromDictionary_double(dictionary, key);
+                }
+
+                key = "boundary_pressure_y";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.boundary_pressure_y = getArrayFromDictionary_double(dictionary, key);
+                }
+
+                key = "boundary_pressure_gradient_x";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.boundary_pressure_gradient_x = getArrayFromDictionary_double(dictionary, key);
+                }
+
+                key = "boundary_pressure_gradient_y";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.boundary_pressure_gradient_y = getArrayFromDictionary_double(dictionary, key);
+                }
+                #endregion
+
+                #region Well Data
+                key = "well_locations";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.well_locations = getArrayFromDictionary_int(dictionary, key);
+                }
+
+
+                int number_of_wells = simulator_data.well_locations.Length;
+                simulator_data.well_array = new Well[number_of_wells];
+
+                for (int i = 1; i <= number_of_wells; i++)
+                {
+                    Well well = new Well();
+
+                    double[] well_data = getArrayFromDictionary_double(dictionary, "well" + i);
+                    well.rw = well_data[0]; well.skin = well_data[1]; well.specified_BHP = well_data[2]; well.specified_flow_rate = well_data[3];
+                    well.type = well_data[4] == 0 ? Well.Type.Injection : Well.Type.Production;
+                    well.type_calculation = well_data[5] == 0 ? Well.TypeCalculation.Specified_BHP : Well.TypeCalculation.Specified_Flow_Rate;
+
+                    int location = simulator_data.well_locations[i - 1];
+                    simulator_data.well_array[location] = well;
+                }
+                #endregion
+
+                #region Run Specs
+                key = "single_phase_compressibility";
+                if (dictionary.ContainsKey(key))
+                {
+                    if (dictionary[key] == "incompressible")
+                    {
+                        simulator_data.compressibility = TypeDefinitions.Compressibility.Incompressible;
+                    }
+                    else if (dictionary[key] == "slightly_compresssible")
+                    {
+                        simulator_data.compressibility = TypeDefinitions.Compressibility.Slightly_Compressible;
+                    }
+                    else if(dictionary[key] == "compressible")
+                    {
+                        simulator_data.compressibility = TypeDefinitions.Compressibility.Compressible;
+                    }
+                }
+
+                key = "grid_type";
+                if (dictionary.ContainsKey(key))
+                {
+                    if (dictionary[key] == "rectangular")
+                    {
+                        simulator_data.grid_type = Transmissibility.GridType.Rectangular;
+                    }
+                    else if (dictionary[key] == "cylindrical")
+                    {
+                        simulator_data.grid_type = Transmissibility.GridType.Cylindrical;
+                    }
+                    
+                }
+
+                key = "delta_t";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.delta_t = double.Parse(dictionary[key]);
+                }
+
+                key = "time_max";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.time_max = double.Parse(dictionary[key]);
+                }
+
+                key = "convergence_pressure";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.convergence_pressure = double.Parse(dictionary[key]);
+                }
+                #endregion
             }
         }
 
