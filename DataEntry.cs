@@ -107,7 +107,83 @@ namespace CUBOS
                 }
                 else
                 {
+                    List<int> temp_list = new List<int>();
 
+                    //Delta x values
+                    string[] delta_x_array = dictionary["delta_x"].Split(',');
+                    for (int i = 0; i < delta_x_array.Length; i++)
+                    {
+                        temp_list.Add(int.Parse(delta_x_array[i]));
+                    }
+                    simulator_data.delta_X_array = temp_list.ToArray();
+                    //Empty the list before reuse
+                    temp_list.Clear();
+
+                    //Delta y values
+                    string[] delta_y_array = dictionary["delta_y"].Split(',');
+                    temp_list = new List<int>();
+                    for (int i = 0; i < delta_y_array.Length; i++)
+                    {
+                        temp_list.Add(int.Parse(delta_y_array[i]));
+                    }
+                    simulator_data.delta_Y_array = temp_list.ToArray();
+                    //Empty the list before reuse
+                    temp_list.Clear();
+
+                    //Heights values
+                    string[] delta_z_array = dictionary["height"].Split(',');
+                    temp_list = new List<int>();
+                    for (int i = 0; i < delta_z_array.Length; i++)
+                    {
+                        temp_list.Add(int.Parse(delta_z_array[i]));
+                    }
+                    simulator_data.delta_Z_array = temp_list.ToArray();
+                    //Empty the list before reuse
+                    temp_list.Clear();
+
+                }
+
+                if (simulator_data.homogeneous)
+                {
+                    simulator_data.Kx_data = int.Parse(dictionary["Kx"]); simulator_data.Ky_data = int.Parse(dictionary["Ky"]); simulator_data.Kz_data = int.Parse(dictionary["Kz"]);
+                    simulator_data.porosity = int.Parse(dictionary["porosity"]);
+                    simulator_data.compressibility_rock = int.Parse(dictionary["compressibility_rock"]);
+                }
+                else
+                {
+                    List<int> temp_list = new List<int>();
+
+                    //Kx values
+                    string[] Kx_array = dictionary["Kx"].Split(',');
+                    for (int i = 0; i < Kx_array.Length; i++)
+                    {
+                        temp_list.Add(int.Parse(Kx_array[i]));
+                    }
+                    simulator_data.Kx_data_array = temp_list.ToArray();
+                    //Empty the list before reuse
+                    temp_list.Clear();
+
+                    //Ky values
+                    string[] Ky_array = dictionary["Ky"].Split(',');
+                    temp_list = new List<int>();
+                    for (int i = 0; i < Ky_array.Length; i++)
+                    {
+                        temp_list.Add(int.Parse(Ky_array[i]));
+                    }
+                    simulator_data.Ky_data_array = temp_list.ToArray();
+                    //Empty the list before reuse
+                    temp_list.Clear();
+
+                    //Kz values
+                    string[] Kz_array = dictionary["Kz"].Split(',');
+                    temp_list = new List<int>();
+                    for (int i = 0; i < Kz_array.Length; i++)
+                    {
+                        temp_list.Add(int.Parse(Kz_array[i]));
+                    }
+                    simulator_data.Kz_data_array = temp_list.ToArray();
+                    //Empty the list before reuse
+                    temp_list.Clear();
                 }
             }
         }
