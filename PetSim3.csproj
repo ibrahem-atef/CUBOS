@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlockOrdering.cs" />
+    <Compile Include="DataEntry.cs" />
     <Compile Include="GridBlock.cs" />
     <Compile Include="Initialize.cs" />
     <Compile Include="Kr.cs" />
@@ -57,7 +58,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PVT.cs" />
-    <Compile Include="ReadFile.cs" />
+    <Compile Include="SimulatorData.cs" />
     <Compile Include="Solver.cs" />
     <Compile Include="Transmissibility.cs" />
     <Compile Include="TypeDefinitions.cs" />
