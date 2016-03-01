@@ -62,12 +62,52 @@ namespace CUBOS
         {
             //a dictionary to store the data read from the file in a key-value pairs format
             Dictionary<string, string> dictionary = ReadFile(file_name);
+            SimulatorData simulator_data = new SimulatorData();
+            string key;
 
             if (dictionary != null)
             {
-                if (dictionary.ContainsKey("solver"))
+                key = "homogeneous";
+                if (dictionary.ContainsKey(key))
                 {
-                    string solver = dictionary["solver"];
+                    if (dictionary[key] == "yes")
+                    {
+                        simulator_data.homogeneous = true;
+                    }
+                    else
+                    {
+                        simulator_data.homogeneous = false;
+                    }
+                }
+
+                key = "grid_dimensions";
+                if (dictionary.ContainsKey(key))
+                {
+                    string[] grid_dimensions = dictionary[key].Split(',');
+                    simulator_data.x = int.Parse(grid_dimensions[0]); simulator_data.y = int.Parse(grid_dimensions[1]); simulator_data.z = int.Parse(grid_dimensions[2]);
+                }
+
+                key = "inactive_blocks";
+                if (dictionary.ContainsKey(key))
+                {
+                    string[] inactive_blocks = dictionary[key].Split(',');
+                    List<int> temp_list = new List<int>();
+                    for (int i = 0; i < inactive_blocks.Length; i++)
+                    {
+                        temp_list.Add(int.Parse(inactive_blocks[i]));
+                    }
+                    simulator_data.inactive_blocks = temp_list.ToArray();
+                }
+
+                if (simulator_data.homogeneous == true)
+                {
+                    simulator_data.delta_X = int.Parse(dictionary["delta_x"]);
+                    simulator_data.delta_Y = int.Parse(dictionary["delta_y"]);
+                    simulator_data.delta_Z = int.Parse(dictionary["delta_z"]);
+                }
+                else
+                {
+
                 }
             }
         }
