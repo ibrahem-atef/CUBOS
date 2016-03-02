@@ -14,7 +14,7 @@ namespace PetSim3
         {
             //initialize the simulator
             SimulatorData data;
-            data = DataEntry.ReadData("");
+            data = DataEntry.ReadData("SinglePhase_Incompressible_1.txt");
             Initialize.initializeSimulationSinglePhase(data);
             //Initialize.initializeSimulationSinglePhase();
 

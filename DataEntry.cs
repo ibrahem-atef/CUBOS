@@ -108,10 +108,28 @@ namespace CUBOS
                     simulator_data.x = int.Parse(grid_dimensions[0]); simulator_data.y = int.Parse(grid_dimensions[1]); simulator_data.z = int.Parse(grid_dimensions[2]);
                 }
 
+                //Set the size of the grid according to the numbering system used "active-blocks only, or all blocks"
+                int size;
+
+                if (simulator_data.natural_ordering == SimulatorData.NaturalOrdering.All_Blocks)
+                {
+                    size = simulator_data.x * simulator_data.y * simulator_data.z;
+                }
+                else
+                {
+                    size = simulator_data.x * simulator_data.y * simulator_data.z - simulator_data.inactive_blocks.Length;
+                }
+                //////////////////////////////////////////////////////////////////
+
+
                 key = "inactive_blocks";
                 if (dictionary.ContainsKey(key))
                 {
                     simulator_data.inactive_blocks = getArrayFromDictionary_int(dictionary, key);
+                }
+                else
+                {
+                    simulator_data.inactive_blocks = new int[0];
                 }
 
                 //Block dimensions
@@ -136,11 +154,81 @@ namespace CUBOS
 
                 #endregion
 
+                #region Run Specs
+                key = "natural_ordering";
+                if (dictionary.ContainsKey(key))
+                {
+                    if (dictionary[key] == "all_blocks")
+                    {
+                        simulator_data.natural_ordering = SimulatorData.NaturalOrdering.All_Blocks;
+                    }
+                    else if (dictionary[key] == "active_only")
+                    {
+                        simulator_data.natural_ordering = SimulatorData.NaturalOrdering.Active_Only;
+                    }
+                }
+
+                key = "single_phase_compressibility";
+                if (dictionary.ContainsKey(key))
+                {
+                    if (dictionary[key] == "incompressible")
+                    {
+                        simulator_data.compressibility = TypeDefinitions.Compressibility.Incompressible;
+                    }
+                    else if (dictionary[key] == "slightly_compresssible")
+                    {
+                        simulator_data.compressibility = TypeDefinitions.Compressibility.Slightly_Compressible;
+                    }
+                    else if (dictionary[key] == "compressible")
+                    {
+                        simulator_data.compressibility = TypeDefinitions.Compressibility.Compressible;
+                    }
+                }
+
+                key = "grid_type";
+                if (dictionary.ContainsKey(key))
+                {
+                    if (dictionary[key] == "rectangular")
+                    {
+                        simulator_data.grid_type = Transmissibility.GridType.Rectangular;
+                    }
+                    else if (dictionary[key] == "cylindrical")
+                    {
+                        simulator_data.grid_type = Transmissibility.GridType.Cylindrical;
+                    }
+
+                }
+
+                key = "delta_t";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.delta_t = double.Parse(dictionary[key]);
+                }
+
+                key = "time_max";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.time_max = double.Parse(dictionary[key]);
+                }
+
+                key = "convergence_pressure";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.convergence_pressure = double.Parse(dictionary[key]);
+                }
+                #endregion
+
                 #region Rock Properties
 
                 if (simulator_data.homogeneous)
                 {
-                    simulator_data.Kx_data = double.Parse(dictionary["Kx"]); simulator_data.Ky_data = double.Parse(dictionary["Ky"]); simulator_data.Kz_data = double.Parse(dictionary["Kz"]);
+                    if (dictionary.ContainsKey("Kx"))
+                    {
+                        //
+                    }
+                    simulator_data.Kx_data = double.Parse(dictionary["Kx"]);
+                    simulator_data.Ky_data = double.Parse(dictionary["Ky"]);
+                    simulator_data.Kz_data = double.Parse(dictionary["Kz"]);
                     simulator_data.porosity = double.Parse(dictionary["porosity"]);
                     simulator_data.compressibility_rock = double.Parse(dictionary["compressibility_rock"]);
                 }
@@ -209,11 +297,19 @@ namespace CUBOS
                 {
                     simulator_data.boundary_flow_rate = getArrayFromDictionary_double(dictionary, key);
                 }
+                else
+                {
+                    simulator_data.boundary_flow_rate = new double[size];
+                }
 
                 key = "boundary_pressure_x";
                 if (dictionary.ContainsKey(key))
                 {
                     simulator_data.boundary_pressure_x = getArrayFromDictionary_double(dictionary, key);
+                }
+                else
+                {
+                    simulator_data.boundary_pressure_x = new double[size];
                 }
 
                 key = "boundary_pressure_y";
@@ -221,17 +317,29 @@ namespace CUBOS
                 {
                     simulator_data.boundary_pressure_y = getArrayFromDictionary_double(dictionary, key);
                 }
+                else
+                {
+                    simulator_data.boundary_pressure_y = new double[size];
+                }
 
                 key = "boundary_pressure_gradient_x";
                 if (dictionary.ContainsKey(key))
                 {
                     simulator_data.boundary_pressure_gradient_x = getArrayFromDictionary_double(dictionary, key);
                 }
+                else
+                {
+                    simulator_data.boundary_pressure_gradient_x = new double[size];
+                }
 
                 key = "boundary_pressure_gradient_y";
                 if (dictionary.ContainsKey(key))
                 {
                     simulator_data.boundary_pressure_gradient_y = getArrayFromDictionary_double(dictionary, key);
+                }
+                else
+                {
+                    simulator_data.boundary_pressure_gradient_y = new double[size];
                 }
                 #endregion
 
@@ -244,7 +352,8 @@ namespace CUBOS
 
 
                 int number_of_wells = simulator_data.well_locations.Length;
-                simulator_data.well_array = new Well[number_of_wells];
+                
+                simulator_data.well_array = new Well[size];
 
                 for (int i = 1; i <= number_of_wells; i++)
                 {
@@ -257,70 +366,6 @@ namespace CUBOS
 
                     int location = simulator_data.well_locations[i - 1];
                     simulator_data.well_array[location] = well;
-                }
-                #endregion
-
-                #region Run Specs
-                key = "natural_ordering";
-                if (dictionary.ContainsKey(key))
-                {
-                    if (dictionary[key] == "all_blocks")
-                    {
-                        simulator_data.natural_ordering = SimulatorData.NaturalOrdering.All_Blocks;
-                    }
-                    else if (dictionary[key] == "active_only")
-                    {
-                        simulator_data.natural_ordering = SimulatorData.NaturalOrdering.Active_Only;
-                    }
-                }
-
-                key = "single_phase_compressibility";
-                if (dictionary.ContainsKey(key))
-                {
-                    if (dictionary[key] == "incompressible")
-                    {
-                        simulator_data.compressibility = TypeDefinitions.Compressibility.Incompressible;
-                    }
-                    else if (dictionary[key] == "slightly_compresssible")
-                    {
-                        simulator_data.compressibility = TypeDefinitions.Compressibility.Slightly_Compressible;
-                    }
-                    else if(dictionary[key] == "compressible")
-                    {
-                        simulator_data.compressibility = TypeDefinitions.Compressibility.Compressible;
-                    }
-                }
-
-                key = "grid_type";
-                if (dictionary.ContainsKey(key))
-                {
-                    if (dictionary[key] == "rectangular")
-                    {
-                        simulator_data.grid_type = Transmissibility.GridType.Rectangular;
-                    }
-                    else if (dictionary[key] == "cylindrical")
-                    {
-                        simulator_data.grid_type = Transmissibility.GridType.Cylindrical;
-                    }
-                    
-                }
-
-                key = "delta_t";
-                if (dictionary.ContainsKey(key))
-                {
-                    simulator_data.delta_t = double.Parse(dictionary[key]);
-                }
-
-                key = "time_max";
-                if (dictionary.ContainsKey(key))
-                {
-                    simulator_data.time_max = double.Parse(dictionary[key]);
-                }
-
-                key = "convergence_pressure";
-                if (dictionary.ContainsKey(key))
-                {
-                    simulator_data.convergence_pressure = double.Parse(dictionary[key]);
                 }
                 #endregion
             }
