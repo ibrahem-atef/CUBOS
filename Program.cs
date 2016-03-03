@@ -14,11 +14,40 @@ namespace PetSim3
         {
             //initialize the simulator
             SimulatorData data;
-            data = DataEntry.ReadData("SinglePhase_Incompressible_1.txt");
-            Initialize.initializeSimulationSinglePhase(data);
-            //Initialize.initializeSimulationSinglePhase();
 
+            //Print Screen Logo
+            consoleScreenWelcomeImage();
+
+            Console.Write("Please, enter the data file code : ");
+
+            int input = int.Parse(Console.ReadLine());
+            data = DataEntry.ReadData("data/" + input + ".txt");
+            Console.WriteLine();
+
+            Initialize.initializeSimulationSinglePhase(data);
+
+            //this line prevents the console from closing automatically after finshing execution
             Console.ReadKey();
-        }   
+        }
+
+        private static void consoleScreenWelcomeImage()
+        {
+            Console.WriteLine("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+            Console.WriteLine("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+            Console.WriteLine("++__________________________________________________________________________++");
+            Console.WriteLine("++______##########___##       #___#########____##########___##########______++");
+            Console.WriteLine("++______##########___##       #___##       #___##       #___##        ______++");
+            Console.WriteLine("++______##        ___##       #___##       #___##       #___##        ______++");
+            Console.WriteLine("++______##        ___##       #___##########___##       #___#########_______++");
+            Console.WriteLine("++______##        ___##       #___##        #__##       #___        ##______++");
+            Console.WriteLine("++______##        ___##       #___##        #__##       #___        ##______++");
+            Console.WriteLine("++______##########___##########___###########__##       #___        ##______++");
+            Console.WriteLine("++______##########___##########___###########__##########___##########______++");
+            Console.WriteLine("++______Cairo________University___Black________Oil__________Simulator_______++");
+            Console.WriteLine("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+            Console.WriteLine("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+
+            Console.WriteLine(); Console.WriteLine(); Console.WriteLine();
+        }
     }
 }
