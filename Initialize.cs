@@ -9,7 +9,7 @@ namespace CUBOS
     class Initialize
     {
         //Method Name: initializeSimulationSinglePhase
-        //Objectives: reads the data and assign the values to the blocks after constructing the grid and starting the solver
+        //Objectives: reads the data from the data object passed to it and assign the values to the blocks after constructing the grid and starting the solver
         //Inputs: a variable of type "SimulatorData" that contains all the simulation data read from the data input file
         //Outpits: N/A
         public static void initializeSimulationSinglePhase(SimulatorData data)
@@ -37,7 +37,7 @@ namespace CUBOS
             GridBlock[] grid;
             #endregion
 
-            #region Initialize grid
+            #region Initialize grid data
             //The gridding technique used here is for only a single row or a single column
             int[] delta_X = new int[x];
             int[] delta_Y = new int[y];
@@ -136,17 +136,16 @@ namespace CUBOS
             double convergence_pressure = data.convergence_pressure;
             #endregion
 
-            #region Initialize
+            #region Initialize grid
             //#########################################################################################
             //Assign neighbouring blocks "according to the natural ordering procedure"
-            grid = RectangularBlockNumbering.assignGridOrdering(grid_dimensions, inactive_blocks, RectangularBlockNumbering.NumberingScheme.Active_Only);
-
+            //set numbering scheme
+            var numbering_scheme = RectangularBlockNumbering.NumberingScheme.Active_Only;
+            //contruct the grid
+            grid = RectangularBlockNumbering.assignGridOrdering(grid_dimensions, inactive_blocks, numbering_scheme);
+            
             GridBlock block;
-
-            //Parallel.For(0, grid.Length, (counter) =>
-            //{
-
-            //});
+            //assign properties to each block in the grid
             for (int counter = 0; counter < grid.Length; counter++)
             {
                 block = grid[counter];
@@ -317,6 +316,10 @@ namespace CUBOS
             #endregion
         }
 
+        //Method Name: initializeSimulationSinglePhase
+        //Objectives: The same as the previous method, but it does not take data as input. It uses internal hard coded sata.
+        //Inputs: N/A
+        //Outputs: N/A
         public static void initializeSimulationSinglePhase()
         {
             #region Initialize Rectangular grid dimensions

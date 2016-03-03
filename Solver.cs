@@ -10,7 +10,7 @@ namespace CUBOS
 {
     class SolverSinglePhase
     {
-        //this variable is used when determining if a weel is capable of producing fluid under the specified flow rate
+        //this variable is used when determining if a well is capable of producing fluid under the specified flow rate
         private static bool skip;
 
         //#############################################################################################
@@ -24,11 +24,6 @@ namespace CUBOS
             int grid_length = grid.Length;
             double[][] matrix_P = new double[grid_length][];
             double[] matrix_C = new double[grid_length];
-
-            //Parallel.For(0, grid_length, (i) => {
-
-            //});
-
 
             GridBlock block;
             GridBlock next_block;
@@ -300,7 +295,7 @@ namespace CUBOS
 
                 if (!skip)
                 {
-                    update_properties_chord_slope(new_P, grid);
+                    update_properties_slightly_compressible(new_P, grid);
                     Console.WriteLine(new_P[0] + ", " + new_P[1] + ", " + new_P[2] + ", " + new_P[3]);
                     Console.ReadKey();
                 }
@@ -308,11 +303,11 @@ namespace CUBOS
 
         }
 
-        //Method Name: update_properties_chord_slope
+        //Method Name: update_properties_slightly_compressible
         //Objectives: uses the fluid and rock compressibilities to calculate the new properties for the slightly compressible solver
         //Inputs: values of the new pressures and the array representing the grid blocks
         //Outputs: this method internally updates the values of the fluid PVT and rock properties of each grid block
-        private static void update_properties_chord_slope(double[] new_P, GridBlock[] grid)
+        private static void update_properties_slightly_compressible(double[] new_P, GridBlock[] grid)
         {
             GridBlock block;
             for (int i = 0; i < grid.Length; i++)
