@@ -486,7 +486,7 @@ namespace CUBOS
                     if (iteration != 0)
                     {
                         //check
-                        if (check_pressure_convergence(new_P, old_iteration_P) <= convergence_pressure)
+                        if (PVT.checkPressureConvergence(new_P, old_iteration_P) <= convergence_pressure)
                         {
                             break;
                         }
@@ -562,24 +562,6 @@ namespace CUBOS
                 }
             }
         }
-
-        //Method Name: check_pressure_convergence
-        //Objectives: used to check if the pressure solution converges through the non-linear iterations
-        //Inputs: two arrays with the values of the old and new grid blocks pressures
-        //Outputs: the maximum change in pressure that occurs in any of the grid blocks between two successive non-linear iterations
-        //The output is compared against a specified criterion of convergence
-        private static double check_pressure_convergence(double[] new_P, double[] old_P)
-        {
-            int length = new_P.Length;
-            double[] temp = new double[length];
-            for (int i = 0; i < length; i++)
-            {
-                temp[i] = Math.Abs(new_P[i] - old_P[i]) / old_P[i];
-            }
-
-            return temp.Max();
-        }
-
 
 
         //#############################################################################################

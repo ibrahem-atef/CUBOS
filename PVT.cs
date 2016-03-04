@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace CUBOS
 {
-    //Method_1 Name: lookUp
+    //Method Name: lookUp
     //Objectives: this is a private (internal method for the internal use of this class only) method that makes table lookup interpolation
     //Inputs: two variables representing the X and Y arrays "The two columns of the table" and the Y value
     //Outputs: a variable that represents the X value corresponding to the particular Y value
 
-    //Method_2 Name: extrapolate
+    //Method Name: extrapolate
     //Objectives: this is a private (internal method for the internal use of this class only) method that makes table lookup and extrapolation
     //Inputs: two variables representing the X and Y arrays "The two columns of the table" and the Y value
     //Outputs: a variable that represents the X value corresponding to the particular Y value
 
-    //Method_3 Name: getPVT "where PVT may be OilFVF, GasViscosity, WaterDensity, ..."
+    //Method Name: getPVT "where PVT may be OilFVF, GasViscosity, WaterDensity, ..."
     //Objectives: calculate the corresponding PVT value at a certain pressure
     //Inputs: a variable representing the value of the pressure
     //Outputs: the corresponding PVT value
@@ -25,6 +25,7 @@ namespace CUBOS
         private double bubble_point_pressure;
         private double[][] s_o_data, us_o_d, s_w_data, us_w_d, g_data;
 
+        //Constructor Name: PVT
         //Objectives: Public constructor of the class. This is used only once to get the PVT data stored within the PVT class instance
         //Inputs: arrays representing the PVT values
         public PVT(double[][] s_o_data = null, double[][] us_o_d = null, double[][] s_w_data = null, double[][] us_w_d = null, double[][] g_data = null, double bubble_point = 14.7)
@@ -190,6 +191,89 @@ namespace CUBOS
         public static double chord_slope_FVF(double C, double old_FVF, double new_pressure, double old_pressure)
         {
             return old_FVF * (1 - C * (new_pressure - old_pressure));
+        }
+
+        //Method Name: initializePressure
+        //Objectives: initializing the pressure for problems considering the gravity effect
+        //Inputs: there are two overloads "versions" of this method. one that takes an input for fluid compressibility "C" used for incompressible and slightly-compressible fluids
+        //Inputs: the other form takes no input for compressibility, but will use the PVT values provided for density calculations
+        //Outputs: an array of the values of the pressure for each depth
+        public static double[] initializePressure(double[] depth_array, double pressure, double pressure_measurement_depth, double density, double C, double FVF)
+        {
+            double convergence_criterion = 0.001;
+            int length = depth_array.Length;
+            double[] pressure_array = new double[length];
+            double[] old_pressure = new double[length];
+            double[] density_array = new double[length];
+            //
+            //Initialize density-array
+            for (int i = 0; i < length; i++)
+            {
+                depth_array[i] = density;
+            }
+
+            double density_standard = density * FVF;
+            double new_FVF;
+
+            //if the fluid is incompressible, then no-iterations are needed
+            if (C == 0)
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    pressure_array[i] = pressure + density * (depth_array[i] - pressure_measurement_depth);
+                }
+            }
+            //iterate for the value of density for slightly-compressible fluids
+            else
+            {
+                //First iteration
+                for (int i = 0; i < length; i++)
+                {
+                    pressure_array[i] = pressure + density_array[i] * (depth_array[i] - pressure_measurement_depth);
+                }
+                //update density-array
+                for (int i = 0; i < length; i++)
+                {
+                    new_FVF = chord_slope_FVF(C, FVF, pressure_array[i], pressure);
+                    density_array[i] = density_standard / new_FVF;
+                }
+
+                //From the second iteration on, check for convergence
+                while (checkPressureConvergence(pressure_array, old_pressure) >= convergence_criterion)
+                {
+                    old_pressure = pressure_array.Clone() as double[];
+
+                    for (int i = 0; i < length; i++)
+                    {
+                        pressure_array[i] = pressure + density_array[i] * (depth_array[i] - pressure_measurement_depth);
+                    }
+                    //update density-array
+                    for (int i = 0; i < length; i++)
+                    {
+                        new_FVF = chord_slope_FVF(C, FVF, pressure_array[i], pressure);
+                        density_array[i] = density_standard / new_FVF;
+                    }
+                }
+            }
+
+            return pressure_array;
+        }
+
+        //Method Name: checkPressureConvergence
+        //Objectives: used to check if the pressure solution converges through the non-linear iterations
+        //Inputs: two arrays with the values of the old and new grid blocks pressures
+        //Outputs: the maximum change in pressure that occurs in any of the grid blocks between two successive non-linear iterations
+        //The output is compared against a specified criterion of convergence
+        public static double checkPressureConvergence(double[] new_P, double[] old_P)
+        {
+            int length = new_P.Length;
+            double[] temp = new double[length];
+            for (int i = 0; i < length; i++)
+            {
+                temp[i] = Math.Abs(new_P[i] - old_P[i]) / old_P[i];
+            }
+
+            return temp.Max();
         }
     }
 }
