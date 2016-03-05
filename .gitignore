@@ -50,6 +50,8 @@ build/
 [Bb]in/
 [Oo]bj/
 
+[Pp]ackages/
+
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
@@ -214,3 +216,5 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+*.exe
+*.dll
