@@ -21,10 +21,13 @@ namespace PetSim3
             Console.Write("Please, enter the data file code : ");
 
             int input = int.Parse(Console.ReadLine());
-            data = DataEntry.ReadData("data/" + input + ".txt");
+            data = DataEntry.ReadData("data/" + input);
             Console.WriteLine();
 
-            Initialize.initializeSimulationSinglePhase(data);
+            if (data.successfully_loaded_data)
+            {
+                Initialize.initializeSimulationSinglePhase(data);
+            }
 
             //this line prevents the console from closing automatically after finshing execution
             Console.ReadKey();
