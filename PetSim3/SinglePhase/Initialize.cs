@@ -298,7 +298,7 @@ namespace CUBOS
             #endregion
 
             #region Output
-            SinglePhase.OutPut2D output = new SinglePhase.OutPut2D(grid, grid_dimensions, data.what, data.where, compressibility, data.file_name, data.formatted, data.single_file);
+            SinglePhase.OutPut2D output = new SinglePhase.OutPut2D(grid, grid_dimensions, data.what, data.where, compressibility, data.file_name, data.formatted, data.single_file, inactive_blocks);
             #endregion
 
             #region Choose Solver
