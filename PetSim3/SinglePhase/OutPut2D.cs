@@ -49,6 +49,9 @@ namespace SinglePhase
         //a variable for storing and retrieving the value for IMB
         private double IMB;
 
+        //a variable to keep track of the current simulation total time
+        private double time;
+
         //A public constructor of the class to initialize the variables
         public OutPut2D(GridBlock[] grid, int[] grid_dimensions, string[] what, Where where, TypeDefinitions.Compressibility compressibility, string file_name, bool formatted, bool single_file, int[] inactive_blocks)
         {
@@ -99,6 +102,12 @@ namespace SinglePhase
             //output to the console
             if (where == Where.Console)
             {
+                if (time != -1)
+                {
+                    Console.WriteLine("Current Simulation Time : {0}", time);
+                    Console.WriteLine();
+                }
+                
                 /////////////////////////////////////////////////////////////////////////
                 if (what.Contains("pressure"))
                 {
@@ -361,6 +370,12 @@ namespace SinglePhase
                     using (StreamWriter file = new StreamWriter(file_name + "_output.txt", true))
                         for (int a = 0; a < what.Length; a++)
                         {
+                            if (a == 0 && time != -1)
+                            {
+                                file.WriteLine("Current Simulation Time : {0}", time);
+                                file.WriteLine();
+                            }
+
                             string property = what[a];
                             /////////////////////////////////////////////////////////////////////////
                             if (property == "pressure")
@@ -632,6 +647,12 @@ namespace SinglePhase
                                     counter = grid_size - k * j * x;
                                     for (int i = 1; i <= x; i++)
                                     {
+                                        if (counter == (grid_size - x) && time != -1)
+                                        {
+                                            file.WriteLine("Current Simulation Time : {0}", time);
+                                            file.WriteLine();
+                                        }
+
                                         //initialize
                                         skip = 0;
                                         if (inactive_blocks.Contains(counter))
@@ -682,6 +703,12 @@ namespace SinglePhase
                             {
                                 for (int j = 1; j <= y; j++)
                                 {
+                                    if (counter == (grid_size - x) && time != -1)
+                                    {
+                                        file.WriteLine("Current Simulation Time : {0}", time);
+                                        file.WriteLine();
+                                    }
+
                                     //this line is used to print blocks in a reversed order so they appear exactly like the naturally ordered blocks
                                     counter = grid_size - k * j * x;
                                     for (int i = 1; i <= x; i++)
@@ -743,6 +770,12 @@ namespace SinglePhase
                             {
                                 for (int j = 1; j <= y; j++)
                                 {
+                                    if (counter == (grid_size - x) && time != -1)
+                                    {
+                                        file.WriteLine("Current Simulation Time : {0}", time);
+                                        file.WriteLine();
+                                    }
+
                                     //this line is used to print blocks in a reversed order so they appear exactly like the naturally ordered blocks
                                     counter = grid_size - k * j * x;
                                     for (int i = 1; i <= x; i++)
@@ -804,6 +837,12 @@ namespace SinglePhase
                             {
                                 for (int j = 1; j <= y; j++)
                                 {
+                                    if (counter == (grid_size - x) && time != -1)
+                                    {
+                                        file.WriteLine("Current Simulation Time : {0}", time);
+                                        file.WriteLine();
+                                    }
+
                                     //this line is used to print blocks in a reversed order so they appear exactly like the naturally ordered blocks
                                     counter = grid_size - k * j * x;
                                     for (int i = 1; i <= x; i++)
@@ -861,6 +900,12 @@ namespace SinglePhase
                         using (StreamWriter file = new StreamWriter(file_name + "_" + property + "_output.txt", true))
                             if (compressibility == TypeDefinitions.Compressibility.Incompressible)
                             {
+                                if (time != -1)
+                                {
+                                    file.WriteLine("Current Simulation Time : {0}", time);
+                                    file.WriteLine();
+                                }
+
                                 double error = IMB;
                                 file.WriteLine(error);
                             }
@@ -883,6 +928,12 @@ namespace SinglePhase
             //output to the console
             if (where == Where.Console)
             {
+                if (time != -1)
+                {
+                    Console.WriteLine("Current Simulation Time : {0}", time);
+                    Console.WriteLine();
+                }
+
                 /////////////////////////////////////////////////////////////////////////
                 if (what.Contains("pressure"))
                 {
@@ -994,6 +1045,12 @@ namespace SinglePhase
                     using (StreamWriter file = new StreamWriter(file_name + "_output.txt", true))
                         for (int a = 0; a < what.Length; a++)
                         {
+                            if (a == 0 && time != -1)
+                            {
+                                file.WriteLine("Current Simulation Time : {0}", time);
+                                file.WriteLine();
+                            }
+
                             string property = what[a];
                             /////////////////////////////////////////////////////////////////////////
                             if (property == "pressure")
@@ -1127,6 +1184,11 @@ namespace SinglePhase
                         using (StreamWriter file = new StreamWriter(file_name + "_" + property + "_output.txt", true))
                             for (int i = 0; i < grid.Length; i++)
                             {
+                                if (i == 0 && time != -1)
+                                {
+                                    file.Write(time.ToString().PadRight(8));
+                                }
+
                                 block = grid[i];
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
@@ -1148,6 +1210,11 @@ namespace SinglePhase
                         using (StreamWriter file = new StreamWriter(file_name + "_" + property + "_output.txt", true))
                             for (int i = 0; i < grid.Length; i++)
                             {
+                                if (i == 0 && time != -1)
+                                {
+                                    file.Write(time.ToString().PadRight(8));
+                                }
+
                                 block = grid[i];
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
@@ -1176,6 +1243,11 @@ namespace SinglePhase
                         using (StreamWriter file = new StreamWriter(file_name + "_" + property + "_output.txt", true))
                             for (int i = 0; i < grid.Length; i++)
                             {
+                                if (i == 0 && time != -1)
+                                {
+                                    file.Write(time.ToString().PadRight(8));
+                                }
+
                                 block = grid[i];
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
@@ -1204,6 +1276,11 @@ namespace SinglePhase
                         using (StreamWriter file = new StreamWriter(file_name + "_" + property + "_output.txt", true))
                             for (int i = 0; i < grid.Length; i++)
                             {
+                                if (i == 0 && time != -1)
+                                {
+                                    file.Write(time.ToString().PadRight(8));
+                                }
+
                                 block = grid[i];
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
@@ -1232,6 +1309,11 @@ namespace SinglePhase
                         using (StreamWriter file = new StreamWriter(file_name + "_" + property + "_output.txt", true))
                             if (compressibility == TypeDefinitions.Compressibility.Incompressible)
                             {
+                                if (time != -1)
+                                {
+                                    file.Write(time.ToString().PadRight(8));
+                                }
+
                                 double error = IMB;
                                 file.WriteLine(error);
                             }
@@ -1248,8 +1330,10 @@ namespace SinglePhase
             writeNoFormat(this.where);
         }
 
-        public void write(double IMB)
+        public void write(double IMB, double time = -1)
         {
+            this.time = time;
+
             this.IMB = IMB;
 
             if (formatted)
