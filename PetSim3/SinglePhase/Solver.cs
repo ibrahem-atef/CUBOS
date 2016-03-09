@@ -19,6 +19,7 @@ namespace CUBOS
         //Objectives: Solver for the single-phase incompressible fluid
         //The solution is time-independent
         //Inputs: an array of variables of type "GridBlock"
+        //Inputs: a variable of type OutPut2D used to display the results
         //Outputs: N/A
         public static void incompressible(GridBlock[] grid, SinglePhase.OutPut2D output)
         {
@@ -127,8 +128,9 @@ namespace CUBOS
         //Objectives: Solver for the single-phase slightly compressible fluid
         //The solution is time-dependent
         //Inputs: an array of variables of type "GridBlock", the value of the time step between subsequent runs and the value of the total time duration
+        //Inputs: a variable of type OutPut2D used to display the results
         //Outputs: N/A
-        public static void slightly_compressible(GridBlock[] grid, double delta_t, double time_max)
+        public static void slightly_compressible(GridBlock[] grid, double delta_t, double time_max, SinglePhase.OutPut2D output)
         {
             int grid_length = grid.Length;
             double[][] matrix_P = new double[grid_length][];
@@ -285,8 +287,10 @@ namespace CUBOS
                     //store the result in the MBE class for easy handling between different methods
                     MBE.IMB = IMB;
 
-                    Console.WriteLine(new_P[0] + ", " + new_P[1] + ", " + new_P[2] + ", " + new_P[3]);
-                    Console.ReadKey();
+                    output.write(IMB, current_time);
+
+                    //Console.WriteLine(new_P[0] + ", " + new_P[1] + ", " + new_P[2] + ", " + new_P[3]);
+                    //Console.ReadKey();
                 }
             }
 
