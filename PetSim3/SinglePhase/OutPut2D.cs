@@ -350,7 +350,7 @@ namespace SinglePhase
                     Console.WriteLine("Material Balance Error :");
                     Console.WriteLine();
 
-                    if (compressibility == TypeDefinitions.Compressibility.Incompressible)
+                    if (true)
                     {
                         double error = IMB;
                         Console.WriteLine(error);
@@ -620,7 +620,7 @@ namespace SinglePhase
                                 file.WriteLine("Material Balance Error :");
                                 file.WriteLine();
 
-                                if (compressibility == TypeDefinitions.Compressibility.Incompressible)
+                                if (true)
                                 {
                                     double error = IMB;
                                     file.WriteLine(error);
@@ -898,7 +898,7 @@ namespace SinglePhase
                     if (what.Contains(property))
                     {
                         using (StreamWriter file = new StreamWriter(file_name + "_" + property + "_output.txt", true))
-                            if (compressibility == TypeDefinitions.Compressibility.Incompressible)
+                            if (true)
                             {
                                 if (time != -1)
                                 {
@@ -1163,7 +1163,7 @@ namespace SinglePhase
                                 file.WriteLine("Material Balance Error :");
                                 file.WriteLine();
 
-                                if (compressibility == TypeDefinitions.Compressibility.Incompressible)
+                                if (true)
                                 {
                                     double error = IMB;
                                     file.WriteLine(error);
@@ -1307,7 +1307,7 @@ namespace SinglePhase
                     if (what.Contains(property))
                     {
                         using (StreamWriter file = new StreamWriter(file_name + "_" + property + "_output.txt", true))
-                            if (compressibility == TypeDefinitions.Compressibility.Incompressible)
+                            if (true)
                             {
                                 if (time != -1)
                                 {
