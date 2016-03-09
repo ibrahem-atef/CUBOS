@@ -46,6 +46,9 @@ namespace SinglePhase
         bool single_file = true;
         bool over_write = true;
 
+        //a variable for storing and retrieving the value for IMB
+        private double IMB;
+
         //A public constructor of the class to initialize the variables
         public OutPut2D(GridBlock[] grid, int[] grid_dimensions, string[] what, Where where, TypeDefinitions.Compressibility compressibility, string file_name, bool formatted, bool single_file, int[] inactive_blocks)
         {
@@ -90,7 +93,7 @@ namespace SinglePhase
             }
         }
 
-        public void writeFormatted(Where where)
+        private void writeFormatted(Where where)
         {
             #region Console
             //output to the console
@@ -340,7 +343,7 @@ namespace SinglePhase
 
                     if (compressibility == TypeDefinitions.Compressibility.Incompressible)
                     {
-                        double error = MBE.incompressible(grid);
+                        double error = IMB;
                         Console.WriteLine(error);
                     }
                 }
@@ -604,7 +607,7 @@ namespace SinglePhase
 
                                 if (compressibility == TypeDefinitions.Compressibility.Incompressible)
                                 {
-                                    double error = MBE.incompressible(grid);
+                                    double error = IMB;
                                     file.WriteLine(error);
                                 }
                             }
@@ -858,7 +861,7 @@ namespace SinglePhase
                         using (StreamWriter file = new StreamWriter(file_name + "_" + property + "_output.txt", true))
                             if (compressibility == TypeDefinitions.Compressibility.Incompressible)
                             {
-                                double error = MBE.incompressible(grid);
+                                double error = IMB;
                                 file.WriteLine(error);
                             }
 
@@ -869,12 +872,12 @@ namespace SinglePhase
             #endregion
         }
 
-        public void writeFormatted()
+        private void writeFormatted()
         {
             writeFormatted(this.where);
         }
 
-        public void writeNoFormat(Where where)
+        private void writeNoFormat(Where where)
         {
             #region Console
             //output to the console
@@ -974,7 +977,7 @@ namespace SinglePhase
                     Console.WriteLine("Material Balance Error :");
                     Console.WriteLine();
 
-                    double error = MBE.incompressible(grid);
+                    double error = IMB;
                     Console.WriteLine(error);
                 }
 
@@ -1105,7 +1108,7 @@ namespace SinglePhase
 
                                 if (compressibility == TypeDefinitions.Compressibility.Incompressible)
                                 {
-                                    double error = MBE.incompressible(grid);
+                                    double error = IMB;
                                     file.WriteLine(error);
                                 }
                             }
@@ -1229,7 +1232,7 @@ namespace SinglePhase
                         using (StreamWriter file = new StreamWriter(file_name + "_" + property + "_output.txt", true))
                             if (compressibility == TypeDefinitions.Compressibility.Incompressible)
                             {
-                                double error = MBE.incompressible(grid);
+                                double error = IMB;
                                 file.WriteLine(error);
                             }
 
@@ -1240,13 +1243,15 @@ namespace SinglePhase
             #endregion
         }
 
-        public void writeNoFormat()
+        private void writeNoFormat()
         {
             writeNoFormat(this.where);
         }
 
-        public void write()
+        public void write(double IMB)
         {
+            this.IMB = IMB;
+
             if (formatted)
             {
                 writeFormatted();

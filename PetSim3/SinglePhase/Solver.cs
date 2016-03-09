@@ -1,5 +1,6 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using System;
+using SinglePhase;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -33,6 +34,8 @@ namespace CUBOS
             double constants = 0;
             double T = 0;
             double[] new_P;
+
+            double MBE;
 
             for (int i = 0; i < grid_length; i++)
             {
@@ -114,7 +117,9 @@ namespace CUBOS
 
             updatePropertiesIncompressible(new_P, grid);
 
-            output.write();
+            MBE = SinglePhase.MBE.production(grid);
+
+            output.write(MBE);
             //Console.WriteLine(new_P[0] + ", " + new_P.Last());
         }
 
@@ -131,6 +136,10 @@ namespace CUBOS
 
             const double a = 5.614583;
             double accumulation_term;
+
+            double IMB;
+            double IMB_production;
+            double IMB_accumulation;
 
             GridBlock block;
             GridBlock next_block;
@@ -264,7 +273,18 @@ namespace CUBOS
 
                 if (!skip)
                 {
+                    //calculate old time step part of the MBE
+                    IMB_accumulation = MBE.accumulation(grid);
+
                     updatePropertiesSlightlyCompressible(new_P, grid);
+
+                    //calculate new time step part of the MBE
+                    IMB_accumulation = MBE.accumulation(grid) - IMB_accumulation;
+                    IMB_production = MBE.production(grid);
+                    IMB = IMB_accumulation / IMB_production / delta_t;
+                    //store the result in the MBE class for easy handling between different methods
+                    MBE.IMB = IMB;
+
                     Console.WriteLine(new_P[0] + ", " + new_P[1] + ", " + new_P[2] + ", " + new_P[3]);
                     Console.ReadKey();
                 }
