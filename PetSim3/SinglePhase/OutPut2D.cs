@@ -148,7 +148,7 @@ namespace SinglePhase
                                 //property for output
                                 if (block.type == GridBlock.Type.Well)
                                 {
-                                    Console.Write(block.well_flow_rate + "\t");
+                                    Console.Write(block.well_flow_rate.ToString().PadRight(16) + "\t");
                                 }
                                 else
                                 {
@@ -229,7 +229,7 @@ namespace SinglePhase
                                 //property for output
                                 if (block.type == GridBlock.Type.Well)
                                 {
-                                    Console.Write(block.BHP + "\t");
+                                    Console.Write(block.BHP.ToString().PadRight(16) + "\t");
                                 }
                                 else
                                 {
@@ -680,7 +680,7 @@ namespace SinglePhase
                 /////////////////////////////////////////////////////////////////////////
                 if (what.Contains("well_block_pressure"))
                 {
-                    Console.WriteLine("Well Rates :");
+                    Console.WriteLine("Well Block Pressure :");
                     Console.WriteLine();
 
                     for (int i = 0; i < grid.Length; i++)
@@ -784,7 +784,7 @@ namespace SinglePhase
                                     //property for output
                                     if (block.type == GridBlock.Type.Well)
                                     {
-                                        file.Write(block.well_flow_rate + "\t");
+                                        file.Write(block.well_flow_rate.ToString().PadRight(16) + "\t");
                                     }
                                     else
                                     {
@@ -797,7 +797,7 @@ namespace SinglePhase
                             /////////////////////////////////////////////////////////////////////////
                             else if (property.Contains("well_block_pressure"))
                             {
-                                file.WriteLine("Well Rates :");
+                                file.WriteLine("Well Block Pressure :");
                                 file.WriteLine();
 
                                 for (int i = 0; i < grid.Length; i++)
@@ -840,7 +840,7 @@ namespace SinglePhase
                                     //property for output
                                     if (block.type == GridBlock.Type.Well)
                                     {
-                                        file.Write(block.BHP + "\t");
+                                        file.Write(block.BHP.ToString().PadRight(16) + "\t");
                                     }
                                     else
                                     {
@@ -908,7 +908,7 @@ namespace SinglePhase
                                 //property for output
                                 if (block.type == GridBlock.Type.Well)
                                 {
-                                    file.Write(block.well_flow_rate + "\t");
+                                    file.Write(block.well_flow_rate.ToString().PadRight(16) + "\t");
                                 }
                                 else
                                 {
@@ -964,7 +964,7 @@ namespace SinglePhase
                                 //property for output
                                 if (block.type == GridBlock.Type.Well)
                                 {
-                                    file.Write(block.BHP + "\t");
+                                    file.Write(block.BHP.ToString().PadRight(16) + "\t");
                                 }
                                 else
                                 {
