@@ -13,6 +13,12 @@ namespace SinglePhase
         //this string indicates an inactive block or a block that does not contain the property to be output
         string marks = "****************";
 
+        //used to keep track of inactive blocks
+        int skip;
+
+        //an array of the numbers of in-active grid blocks "use to output an active-only grid in a format that shows inactive blocks as well"
+        int[] inactive_blocks;
+
         //an array to store the properties that need to be output
         string[] what;
         //Define an enumeration of the output devices
@@ -41,7 +47,7 @@ namespace SinglePhase
         bool over_write = true;
 
         //A public constructor of the class to initialize the variables
-        public OutPut2D(GridBlock[] grid, int[] grid_dimensions, string[] what, Where where, TypeDefinitions.Compressibility compressibility, string file_name, bool formatted, bool single_file)
+        public OutPut2D(GridBlock[] grid, int[] grid_dimensions, string[] what, Where where, TypeDefinitions.Compressibility compressibility, string file_name, bool formatted, bool single_file, int[] inactive_blocks)
         {
             this.grid = grid;
             this.what = what;
@@ -51,6 +57,7 @@ namespace SinglePhase
             this.file_name = file_name;
             this.formatted = formatted;
             this.single_file = single_file;
+            this.inactive_blocks = inactive_blocks;
             grid_size = x * y * z;
             //over_writes the output file at the beginning of the simulation only once
             //it doesn't over-write the file ine subsequen time-steps during the same simulation run
@@ -104,7 +111,27 @@ namespace SinglePhase
                             counter = grid_size - k * j * x;
                             for (int i = 1; i <= x; i++)
                             {
-                                block = grid[counter];
+                                //initialize
+                                skip = 0;
+                                if (inactive_blocks.Contains(counter))
+                                {
+                                    Console.Write(marks + "\t");
+                                    counter += 1;
+                                    continue;
+                                }
+                                for (int b = 0; b < inactive_blocks.Length; b++)
+                                {
+                                    if (inactive_blocks[b] < counter)
+                                    {
+                                        skip += 1;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+
+                                block = grid[counter - skip];
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
@@ -138,7 +165,27 @@ namespace SinglePhase
                             counter = grid_size - k * j * x;
                             for (int i = 1; i <= x; i++)
                             {
-                                block = grid[counter];
+                                //initialize
+                                skip = 0;
+                                if (inactive_blocks.Contains(counter))
+                                {
+                                    Console.Write(marks + "\t");
+                                    counter += 1;
+                                    continue;
+                                }
+                                for (int b = 0; b < inactive_blocks.Length; b++)
+                                {
+                                    if (inactive_blocks[b] < counter)
+                                    {
+                                        skip += 1;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+
+                                block = grid[counter - skip];
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
@@ -179,7 +226,27 @@ namespace SinglePhase
                             counter = grid_size - k * j * x;
                             for (int i = 1; i <= x; i++)
                             {
-                                block = grid[counter];
+                                //initialize
+                                skip = 0;
+                                if (inactive_blocks.Contains(counter))
+                                {
+                                    Console.Write(marks + "\t");
+                                    counter += 1;
+                                    continue;
+                                }
+                                for (int b = 0; b < inactive_blocks.Length; b++)
+                                {
+                                    if (inactive_blocks[b] < counter)
+                                    {
+                                        skip += 1;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+
+                                block = grid[counter - skip];
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
@@ -219,7 +286,27 @@ namespace SinglePhase
                             counter = grid_size - k * j * x;
                             for (int i = 1; i <= x; i++)
                             {
-                                block = grid[counter];
+                                //initialize
+                                skip = 0;
+                                if (inactive_blocks.Contains(counter))
+                                {
+                                    Console.Write(marks + "\t");
+                                    counter += 1;
+                                    continue;
+                                }
+                                for (int b = 0; b < inactive_blocks.Length; b++)
+                                {
+                                    if (inactive_blocks[b] < counter)
+                                    {
+                                        skip += 1;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+
+                                block = grid[counter - skip];
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
@@ -287,11 +374,31 @@ namespace SinglePhase
                                         counter = grid_size - k * j * x;
                                         for (int i = 1; i <= x; i++)
                                         {
-                                            block = grid[counter];
+                                            //initialize
+                                            skip = 0;
+                                            if (inactive_blocks.Contains(counter))
+                                            {
+                                                file.Write(marks + "\t");
+                                                counter += 1;
+                                                continue;
+                                            }
+                                            for (int b = 0; b < inactive_blocks.Length; b++)
+                                            {
+                                                if (inactive_blocks[b] < counter)
+                                                {
+                                                    skip += 1;
+                                                }
+                                                else
+                                                {
+                                                    break;
+                                                }
+                                            }
+
+                                            block = grid[counter - skip];
                                             //omit inactive blocks
                                             if (block.type == GridBlock.Type.Inactive)
                                             {
-                                                Console.Write(marks + "\t");
+                                                file.Write(marks + "\t");
                                                 continue;
                                             }
                                             //property for output
@@ -321,11 +428,31 @@ namespace SinglePhase
                                         counter = grid_size - k * j * x;
                                         for (int i = 1; i <= x; i++)
                                         {
-                                            block = grid[counter];
+                                            //initialize
+                                            skip = 0;
+                                            if (inactive_blocks.Contains(counter))
+                                            {
+                                                file.Write(marks + "\t");
+                                                counter += 1;
+                                                continue;
+                                            }
+                                            for (int b = 0; b < inactive_blocks.Length; b++)
+                                            {
+                                                if (inactive_blocks[b] < counter)
+                                                {
+                                                    skip += 1;
+                                                }
+                                                else
+                                                {
+                                                    break;
+                                                }
+                                            }
+
+                                            block = grid[counter - skip];
                                             //omit inactive blocks
                                             if (block.type == GridBlock.Type.Inactive)
                                             {
-                                                Console.Write(marks + "\t");
+                                                file.Write(marks + "\t");
                                                 continue;
                                             }
                                             //property for output
@@ -362,11 +489,31 @@ namespace SinglePhase
                                         counter = grid_size - k * j * x;
                                         for (int i = 1; i <= x; i++)
                                         {
-                                            block = grid[counter];
+                                            //initialize
+                                            skip = 0;
+                                            if (inactive_blocks.Contains(counter))
+                                            {
+                                                file.Write(marks + "\t");
+                                                counter += 1;
+                                                continue;
+                                            }
+                                            for (int b = 0; b < inactive_blocks.Length; b++)
+                                            {
+                                                if (inactive_blocks[b] < counter)
+                                                {
+                                                    skip += 1;
+                                                }
+                                                else
+                                                {
+                                                    break;
+                                                }
+                                            }
+
+                                            block = grid[counter - skip];
                                             //omit inactive blocks
                                             if (block.type == GridBlock.Type.Inactive)
                                             {
-                                                Console.Write(marks + "\t");
+                                                file.Write(marks + "\t");
                                                 continue;
                                             }
                                             //property for output
@@ -403,11 +550,31 @@ namespace SinglePhase
                                         counter = grid_size - k * j * x;
                                         for (int i = 1; i <= x; i++)
                                         {
-                                            block = grid[counter];
+                                            //initialize
+                                            skip = 0;
+                                            if (inactive_blocks.Contains(counter))
+                                            {
+                                                file.Write(marks + "\t");
+                                                counter += 1;
+                                                continue;
+                                            }
+                                            for (int b = 0; b < inactive_blocks.Length; b++)
+                                            {
+                                                if (inactive_blocks[b] < counter)
+                                                {
+                                                    skip += 1;
+                                                }
+                                                else
+                                                {
+                                                    break;
+                                                }
+                                            }
+
+                                            block = grid[counter - skip];
                                             //omit inactive blocks
                                             if (block.type == GridBlock.Type.Inactive)
                                             {
-                                                Console.Write(marks + "\t");
+                                                file.Write(marks + "\t");
                                                 continue;
                                             }
                                             //property for output
@@ -462,11 +629,31 @@ namespace SinglePhase
                                     counter = grid_size - k * j * x;
                                     for (int i = 1; i <= x; i++)
                                     {
-                                        block = grid[counter];
+                                        //initialize
+                                        skip = 0;
+                                        if (inactive_blocks.Contains(counter))
+                                        {
+                                            file.Write(marks + "\t");
+                                            counter += 1;
+                                            continue;
+                                        }
+                                        for (int b = 0; b < inactive_blocks.Length; b++)
+                                        {
+                                            if (inactive_blocks[b] < counter)
+                                            {
+                                                skip += 1;
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                        }
+
+                                        block = grid[counter - skip];
                                         //omit inactive blocks
                                         if (block.type == GridBlock.Type.Inactive)
                                         {
-                                            Console.Write(marks + "\t");
+                                            file.Write(marks + "\t");
                                             continue;
                                         }
                                         //property for output
@@ -496,11 +683,31 @@ namespace SinglePhase
                                     counter = grid_size - k * j * x;
                                     for (int i = 1; i <= x; i++)
                                     {
-                                        block = grid[counter];
+                                        //initialize
+                                        skip = 0;
+                                        if (inactive_blocks.Contains(counter))
+                                        {
+                                            file.Write(marks + "\t");
+                                            counter += 1;
+                                            continue;
+                                        }
+                                        for (int b = 0; b < inactive_blocks.Length; b++)
+                                        {
+                                            if (inactive_blocks[b] < counter)
+                                            {
+                                                skip += 1;
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                        }
+
+                                        block = grid[counter - skip];
                                         //omit inactive blocks
                                         if (block.type == GridBlock.Type.Inactive)
                                         {
-                                            Console.Write(marks + "\t");
+                                            file.Write(marks + "\t");
                                             continue;
                                         }
                                         //property for output
@@ -537,11 +744,31 @@ namespace SinglePhase
                                     counter = grid_size - k * j * x;
                                     for (int i = 1; i <= x; i++)
                                     {
-                                        block = grid[counter];
+                                        //initialize
+                                        skip = 0;
+                                        if (inactive_blocks.Contains(counter))
+                                        {
+                                            file.Write(marks + "\t");
+                                            counter += 1;
+                                            continue;
+                                        }
+                                        for (int b = 0; b < inactive_blocks.Length; b++)
+                                        {
+                                            if (inactive_blocks[b] < counter)
+                                            {
+                                                skip += 1;
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                        }
+
+                                        block = grid[counter - skip];
                                         //omit inactive blocks
                                         if (block.type == GridBlock.Type.Inactive)
                                         {
-                                            Console.Write(marks + "\t");
+                                            file.Write(marks + "\t");
                                             continue;
                                         }
                                         //property for output
@@ -578,11 +805,31 @@ namespace SinglePhase
                                     counter = grid_size - k * j * x;
                                     for (int i = 1; i <= x; i++)
                                     {
-                                        block = grid[counter];
+                                        //initialize
+                                        skip = 0;
+                                        if (inactive_blocks.Contains(counter))
+                                        {
+                                            file.Write(marks + "\t");
+                                            counter += 1;
+                                            continue;
+                                        }
+                                        for (int b = 0; b < inactive_blocks.Length; b++)
+                                        {
+                                            if (inactive_blocks[b] < counter)
+                                            {
+                                                skip += 1;
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                        }
+
+                                        block = grid[counter - skip];
                                         //omit inactive blocks
                                         if (block.type == GridBlock.Type.Inactive)
                                         {
-                                            Console.Write(marks + "\t");
+                                            file.Write(marks + "\t");
                                             continue;
                                         }
                                         //property for output
@@ -757,7 +1004,7 @@ namespace SinglePhase
                                     //omit inactive blocks
                                     if (block.type == GridBlock.Type.Inactive)
                                     {
-                                        Console.Write(marks + "\t");
+                                        file.Write(marks + "\t");
                                         continue;
                                     }
                                     //property for output
@@ -778,7 +1025,7 @@ namespace SinglePhase
                                     //omit inactive blocks
                                     if (block.type == GridBlock.Type.Inactive)
                                     {
-                                        Console.Write(marks + "\t");
+                                        file.Write(marks + "\t");
                                         continue;
                                     }
                                     //property for output
@@ -806,7 +1053,7 @@ namespace SinglePhase
                                     //omit inactive blocks
                                     if (block.type == GridBlock.Type.Inactive)
                                     {
-                                        Console.Write(marks + "\t");
+                                        file.Write(marks + "\t");
                                         continue;
                                     }
                                     //property for output
@@ -834,7 +1081,7 @@ namespace SinglePhase
                                     //omit inactive blocks
                                     if (block.type == GridBlock.Type.Inactive)
                                     {
-                                        Console.Write(marks + "\t");
+                                        file.Write(marks + "\t");
                                         continue;
                                     }
                                     //property for output
@@ -881,7 +1128,7 @@ namespace SinglePhase
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
-                                    Console.Write(marks + "\t");
+                                    file.Write(marks + "\t");
                                     continue;
                                 }
                                 //property for output
@@ -902,7 +1149,7 @@ namespace SinglePhase
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
-                                    Console.Write(marks + "\t");
+                                    file.Write(marks + "\t");
                                     continue;
                                 }
                                 //property for output
@@ -930,7 +1177,7 @@ namespace SinglePhase
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
-                                    Console.Write(marks + "\t");
+                                    file.Write(marks + "\t");
                                     continue;
                                 }
                                 //property for output
@@ -958,7 +1205,7 @@ namespace SinglePhase
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
-                                    Console.Write(marks + "\t");
+                                    file.Write(marks + "\t");
                                     continue;
                                 }
                                 //property for output
