@@ -287,7 +287,7 @@ namespace CUBOS
                     //store the result in the MBE class for easy handling between different methods
                     MBE.IMB = IMB;
 
-                    output.write(IMB, current_time);
+                    output.write(IMB, current_time + delta_t);
 
                     //Console.WriteLine(new_P[0] + ", " + new_P[1] + ", " + new_P[2] + ", " + new_P[3]);
                     //Console.ReadKey();
