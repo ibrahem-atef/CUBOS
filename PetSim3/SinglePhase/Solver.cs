@@ -268,6 +268,10 @@ namespace CUBOS
                                 break;
                             }
                         }
+                        else
+                        {
+                            block.well_flow_rate = (new_P[i] - block.BHP) * block.well_transmissibility;
+                        }
                     }
                 }
                 #endregion
@@ -532,7 +536,7 @@ namespace CUBOS
                 block.pressure = new_P[i];
                 block.Bw = PVT.chord_slope_FVF(block.C, block.Bw, new_P[i], block.pressure);
                 block.porosity = Vp_Calculator.chord_slope_Vp(block.Cf, block.porosity, new_P[i], block.pressure);
-                if (block.well_transmissibility != 0)
+                if (block.type == GridBlock.Type.Well)
                 {
                     block.well_transmissibility = Well.getTransmissibility(block, block.well_geometric_factor, Well.Phase.Water);
                 }
