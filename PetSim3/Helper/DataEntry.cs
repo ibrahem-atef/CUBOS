@@ -110,7 +110,7 @@ namespace CUBOS
                     {
                         simulator_data.compressibility = TypeDefinitions.Compressibility.Incompressible;
                     }
-                    else if (dictionary[key] == "slightly_compresssible")
+                    else if (dictionary[key] == "slightly_compressible")
                     {
                         simulator_data.compressibility = TypeDefinitions.Compressibility.Slightly_Compressible;
                     }
