@@ -308,7 +308,7 @@ namespace CUBOS
             }
             else if (compressibility == TypeDefinitions.Compressibility.Slightly_Compressible)
             {
-                SolverSinglePhase.slightly_compressible(grid, delta_t, time_max);
+                SolverSinglePhase.slightly_compressible(grid, delta_t, time_max, output);
             }
             else
             {
@@ -672,7 +672,7 @@ namespace CUBOS
             }
             else if (compressibility == TypeDefinitions.Compressibility.Slightly_Compressible)
             {
-                SolverSinglePhase.slightly_compressible(grid, delta_t, time_max);
+                //SolverSinglePhase.slightly_compressible(grid, delta_t, time_max);
             }
             else
             {
