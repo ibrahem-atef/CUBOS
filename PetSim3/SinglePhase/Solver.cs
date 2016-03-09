@@ -152,6 +152,8 @@ namespace CUBOS
             double T = 0;
             double[] new_P;
 
+            output.write(0, 0);
+
             for (double current_time = 0; current_time < time_max; current_time += delta_t)
             {
                 skip = false;
