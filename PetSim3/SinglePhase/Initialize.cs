@@ -298,7 +298,7 @@ namespace CUBOS
             #endregion
 
             #region Output
-            SinglePhase.OutPut2D output = new SinglePhase.OutPut2D(grid, grid_dimensions, data.what, data.where, compressibility, data.file_name, data.formatted, data.single_file);
+            SinglePhase.OutPut2D output = new SinglePhase.OutPut2D(grid, grid_dimensions, data.what, data.where, compressibility, data.file_name, data.formatted, data.single_file, inactive_blocks);
             #endregion
 
             #region Choose Solver
@@ -308,7 +308,7 @@ namespace CUBOS
             }
             else if (compressibility == TypeDefinitions.Compressibility.Slightly_Compressible)
             {
-                SolverSinglePhase.slightly_compressible(grid, delta_t, time_max);
+                SolverSinglePhase.slightly_compressible(grid, delta_t, time_max, output);
             }
             else
             {
@@ -672,7 +672,7 @@ namespace CUBOS
             }
             else if (compressibility == TypeDefinitions.Compressibility.Slightly_Compressible)
             {
-                SolverSinglePhase.slightly_compressible(grid, delta_t, time_max);
+                //SolverSinglePhase.slightly_compressible(grid, delta_t, time_max);
             }
             else
             {

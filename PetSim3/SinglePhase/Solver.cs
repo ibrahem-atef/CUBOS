@@ -1,5 +1,6 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using System;
+using SinglePhase;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace CUBOS
         //Objectives: Solver for the single-phase incompressible fluid
         //The solution is time-independent
         //Inputs: an array of variables of type "GridBlock"
+        //Inputs: a variable of type OutPut2D used to display the results
         //Outputs: N/A
         public static void incompressible(GridBlock[] grid, SinglePhase.OutPut2D output)
         {
@@ -33,6 +35,8 @@ namespace CUBOS
             double constants = 0;
             double T = 0;
             double[] new_P;
+
+            double MBE;
 
             for (int i = 0; i < grid_length; i++)
             {
@@ -114,7 +118,9 @@ namespace CUBOS
 
             updatePropertiesIncompressible(new_P, grid);
 
-            output.write();
+            MBE = SinglePhase.MBE.production(grid);
+
+            output.write(MBE);
             //Console.WriteLine(new_P[0] + ", " + new_P.Last());
         }
 
@@ -122,8 +128,9 @@ namespace CUBOS
         //Objectives: Solver for the single-phase slightly compressible fluid
         //The solution is time-dependent
         //Inputs: an array of variables of type "GridBlock", the value of the time step between subsequent runs and the value of the total time duration
+        //Inputs: a variable of type OutPut2D used to display the results
         //Outputs: N/A
-        public static void slightly_compressible(GridBlock[] grid, double delta_t, double time_max)
+        public static void slightly_compressible(GridBlock[] grid, double delta_t, double time_max, SinglePhase.OutPut2D output)
         {
             int grid_length = grid.Length;
             double[][] matrix_P = new double[grid_length][];
@@ -131,6 +138,10 @@ namespace CUBOS
 
             const double a = 5.614583;
             double accumulation_term;
+
+            double IMB;
+            double IMB_production;
+            double IMB_accumulation;
 
             GridBlock block;
             GridBlock next_block;
@@ -140,6 +151,8 @@ namespace CUBOS
             double constants = 0;
             double T = 0;
             double[] new_P;
+
+            output.write(0, 0);
 
             for (double current_time = 0; current_time < time_max; current_time += delta_t)
             {
@@ -257,6 +270,10 @@ namespace CUBOS
                                 break;
                             }
                         }
+                        else
+                        {
+                            block.well_flow_rate = (new_P[i] - block.BHP) * block.well_transmissibility;
+                        }
                     }
                 }
                 #endregion
@@ -264,9 +281,22 @@ namespace CUBOS
 
                 if (!skip)
                 {
+                    //calculate old time step part of the MBE
+                    IMB_accumulation = MBE.accumulation(grid);
+
                     updatePropertiesSlightlyCompressible(new_P, grid);
-                    Console.WriteLine(new_P[0] + ", " + new_P[1] + ", " + new_P[2] + ", " + new_P[3]);
-                    Console.ReadKey();
+
+                    //calculate new time step part of the MBE
+                    IMB_accumulation = MBE.accumulation(grid) - IMB_accumulation;
+                    IMB_production = MBE.production(grid);
+                    IMB = IMB_accumulation / IMB_production / delta_t;
+                    //store the result in the MBE class for easy handling between different methods
+                    MBE.IMB = IMB;
+
+                    output.write(IMB, current_time + delta_t);
+
+                    //Console.WriteLine(new_P[0] + ", " + new_P[1] + ", " + new_P[2] + ", " + new_P[3]);
+                    //Console.ReadKey();
                 }
             }
 
@@ -508,7 +538,7 @@ namespace CUBOS
                 block.pressure = new_P[i];
                 block.Bw = PVT.chord_slope_FVF(block.C, block.Bw, new_P[i], block.pressure);
                 block.porosity = Vp_Calculator.chord_slope_Vp(block.Cf, block.porosity, new_P[i], block.pressure);
-                if (block.well_transmissibility != 0)
+                if (block.type == GridBlock.Type.Well)
                 {
                     block.well_transmissibility = Well.getTransmissibility(block, block.well_geometric_factor, Well.Phase.Water);
                 }

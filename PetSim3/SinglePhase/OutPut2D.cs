@@ -12,6 +12,13 @@ namespace SinglePhase
     {
         //this string indicates an inactive block or a block that does not contain the property to be output
         string marks = "****************";
+        string marks2 = "````````````````````````````````````````````````````````````````````````````````";
+
+        //used to keep track of inactive blocks
+        int skip;
+
+        //an array of the numbers of in-active grid blocks "use to output an active-only grid in a format that shows inactive blocks as well"
+        int[] inactive_blocks;
 
         //an array to store the properties that need to be output
         string[] what;
@@ -40,8 +47,14 @@ namespace SinglePhase
         bool single_file = true;
         bool over_write = true;
 
+        //a variable for storing and retrieving the value for IMB
+        private double IMB;
+
+        //a variable to keep track of the current simulation total time
+        private double time;
+
         //A public constructor of the class to initialize the variables
-        public OutPut2D(GridBlock[] grid, int[] grid_dimensions, string[] what, Where where, TypeDefinitions.Compressibility compressibility, string file_name, bool formatted, bool single_file)
+        public OutPut2D(GridBlock[] grid, int[] grid_dimensions, string[] what, Where where, TypeDefinitions.Compressibility compressibility, string file_name, bool formatted, bool single_file, int[] inactive_blocks)
         {
             this.grid = grid;
             this.what = what;
@@ -51,6 +64,7 @@ namespace SinglePhase
             this.file_name = file_name;
             this.formatted = formatted;
             this.single_file = single_file;
+            this.inactive_blocks = inactive_blocks;
             grid_size = x * y * z;
             //over_writes the output file at the beginning of the simulation only once
             //it doesn't over-write the file ine subsequen time-steps during the same simulation run
@@ -83,12 +97,22 @@ namespace SinglePhase
             }
         }
 
-        public void writeFormatted(Where where)
+        private void writeFormatted(Where where)
         {
             #region Console
             //output to the console
             if (where == Where.Console)
             {
+                if (time != -1)
+                {
+                    Console.WriteLine(marks2);
+                    Console.WriteLine(marks2);
+
+                    Console.WriteLine("Current Simulation Time : {0}", time);
+                    Console.WriteLine();
+                    Console.WriteLine();
+                }
+                
                 /////////////////////////////////////////////////////////////////////////
                 if (what.Contains("pressure"))
                 {
@@ -104,19 +128,39 @@ namespace SinglePhase
                             counter = grid_size - k * j * x;
                             for (int i = 1; i <= x; i++)
                             {
-                                block = grid[counter];
+                                //initialize
+                                skip = 0;
+                                if (inactive_blocks.Contains(counter))
+                                {
+                                    Console.Write(marks + "    ");
+                                    counter += 1;
+                                    continue;
+                                }
+                                for (int b = 0; b < inactive_blocks.Length; b++)
+                                {
+                                    if (inactive_blocks[b] < counter)
+                                    {
+                                        skip += 1;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+
+                                block = grid[counter - skip];
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
-                                    Console.Write(marks + "\t");
+                                    Console.Write(marks + "    ");
                                     continue;
                                 }
                                 //property for output
-                                Console.Write(block.pressure + "\t");
+                                Console.Write(block.pressure.ToString().PadRight(16) + "    ");
 
                                 counter += 1;
                             }
-                            Console.Write("\n");
+                            Console.Write("\r\n");
                         }
                     }
 
@@ -138,21 +182,41 @@ namespace SinglePhase
                             counter = grid_size - k * j * x;
                             for (int i = 1; i <= x; i++)
                             {
-                                block = grid[counter];
+                                //initialize
+                                skip = 0;
+                                if (inactive_blocks.Contains(counter))
+                                {
+                                    Console.Write(marks + "    ");
+                                    counter += 1;
+                                    continue;
+                                }
+                                for (int b = 0; b < inactive_blocks.Length; b++)
+                                {
+                                    if (inactive_blocks[b] < counter)
+                                    {
+                                        skip += 1;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+
+                                block = grid[counter - skip];
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
-                                    Console.Write(marks + "\t");
+                                    Console.Write(marks + "    ");
                                     continue;
                                 }
                                 //property for output
                                 if (block.type == GridBlock.Type.Well)
                                 {
-                                    Console.Write(block.well_flow_rate + "\t");
+                                    Console.Write(block.well_flow_rate.ToString().PadRight(16) + "    ");
                                 }
                                 else
                                 {
-                                    Console.Write(marks + "\t");
+                                    Console.Write(marks + "    ");
                                 }
 
                                 counter += 1;
@@ -179,21 +243,41 @@ namespace SinglePhase
                             counter = grid_size - k * j * x;
                             for (int i = 1; i <= x; i++)
                             {
-                                block = grid[counter];
+                                //initialize
+                                skip = 0;
+                                if (inactive_blocks.Contains(counter))
+                                {
+                                    Console.Write(marks + "    ");
+                                    counter += 1;
+                                    continue;
+                                }
+                                for (int b = 0; b < inactive_blocks.Length; b++)
+                                {
+                                    if (inactive_blocks[b] < counter)
+                                    {
+                                        skip += 1;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+
+                                block = grid[counter - skip];
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
-                                    Console.Write(marks + "\t");
+                                    Console.Write(marks + "    ");
                                     continue;
                                 }
                                 //property for output
                                 if (block.type == GridBlock.Type.Well)
                                 {
-                                    Console.Write(block.pressure + "\t");
+                                    Console.Write(block.pressure.ToString().PadRight(16) + "    ");
                                 }
                                 else
                                 {
-                                    Console.Write(marks + "\t");
+                                    Console.Write(marks + "    ");
                                 }
 
                                 counter += 1;
@@ -219,21 +303,41 @@ namespace SinglePhase
                             counter = grid_size - k * j * x;
                             for (int i = 1; i <= x; i++)
                             {
-                                block = grid[counter];
+                                //initialize
+                                skip = 0;
+                                if (inactive_blocks.Contains(counter))
+                                {
+                                    Console.Write(marks + "    ");
+                                    counter += 1;
+                                    continue;
+                                }
+                                for (int b = 0; b < inactive_blocks.Length; b++)
+                                {
+                                    if (inactive_blocks[b] < counter)
+                                    {
+                                        skip += 1;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+
+                                block = grid[counter - skip];
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
-                                    Console.Write(marks + "\t");
+                                    Console.Write(marks + "    ");
                                     continue;
                                 }
                                 //property for output
                                 if (block.type == GridBlock.Type.Well)
                                 {
-                                    Console.Write(block.BHP + "\t");
+                                    Console.Write(block.BHP.ToString().PadRight(16) + "    ");
                                 }
                                 else
                                 {
-                                    Console.Write(marks + "\t");
+                                    Console.Write(marks + "    ");
                                 }
 
                                 counter += 1;
@@ -251,9 +355,9 @@ namespace SinglePhase
                     Console.WriteLine("Material Balance Error :");
                     Console.WriteLine();
 
-                    if (compressibility == TypeDefinitions.Compressibility.Incompressible)
+                    if (true)
                     {
-                        double error = MBE.incompressible(grid);
+                        double error = IMB;
                         Console.WriteLine(error);
                     }
                 }
@@ -271,6 +375,15 @@ namespace SinglePhase
                     using (StreamWriter file = new StreamWriter(file_name + "_output.txt", true))
                         for (int a = 0; a < what.Length; a++)
                         {
+                            if (a == 0 && time != -1)
+                            {
+                                file.WriteLine(marks2);
+                                file.WriteLine(marks2);
+
+                                file.WriteLine("Current Simulation Time : {0}", time);
+                                file.WriteLine();
+                            }
+
                             string property = what[a];
                             /////////////////////////////////////////////////////////////////////////
                             if (property == "pressure")
@@ -287,15 +400,35 @@ namespace SinglePhase
                                         counter = grid_size - k * j * x;
                                         for (int i = 1; i <= x; i++)
                                         {
-                                            block = grid[counter];
+                                            //initialize
+                                            skip = 0;
+                                            if (inactive_blocks.Contains(counter))
+                                            {
+                                                file.Write(marks + "    ");
+                                                counter += 1;
+                                                continue;
+                                            }
+                                            for (int b = 0; b < inactive_blocks.Length; b++)
+                                            {
+                                                if (inactive_blocks[b] < counter)
+                                                {
+                                                    skip += 1;
+                                                }
+                                                else
+                                                {
+                                                    break;
+                                                }
+                                            }
+
+                                            block = grid[counter - skip];
                                             //omit inactive blocks
                                             if (block.type == GridBlock.Type.Inactive)
                                             {
-                                                Console.Write(marks + "\t");
+                                                file.Write(marks + "    ");
                                                 continue;
                                             }
                                             //property for output
-                                            file.Write(block.pressure + "\t");
+                                            file.Write(block.pressure.ToString().PadRight(16) + "    ");
 
                                             counter += 1;
                                         }
@@ -321,21 +454,41 @@ namespace SinglePhase
                                         counter = grid_size - k * j * x;
                                         for (int i = 1; i <= x; i++)
                                         {
-                                            block = grid[counter];
+                                            //initialize
+                                            skip = 0;
+                                            if (inactive_blocks.Contains(counter))
+                                            {
+                                                file.Write(marks + "    ");
+                                                counter += 1;
+                                                continue;
+                                            }
+                                            for (int b = 0; b < inactive_blocks.Length; b++)
+                                            {
+                                                if (inactive_blocks[b] < counter)
+                                                {
+                                                    skip += 1;
+                                                }
+                                                else
+                                                {
+                                                    break;
+                                                }
+                                            }
+
+                                            block = grid[counter - skip];
                                             //omit inactive blocks
                                             if (block.type == GridBlock.Type.Inactive)
                                             {
-                                                Console.Write(marks + "\t");
+                                                file.Write(marks + "    ");
                                                 continue;
                                             }
                                             //property for output
                                             if (block.type == GridBlock.Type.Well)
                                             {
-                                                file.Write(block.well_flow_rate.ToString().PadRight(16) + "\t");
+                                                file.Write(block.well_flow_rate.ToString().PadRight(16) + "    ");
                                             }
                                             else
                                             {
-                                                file.Write(marks + "\t");
+                                                file.Write(marks + "    ");
                                             }
 
                                             counter += 1;
@@ -362,21 +515,41 @@ namespace SinglePhase
                                         counter = grid_size - k * j * x;
                                         for (int i = 1; i <= x; i++)
                                         {
-                                            block = grid[counter];
+                                            //initialize
+                                            skip = 0;
+                                            if (inactive_blocks.Contains(counter))
+                                            {
+                                                file.Write(marks + "    ");
+                                                counter += 1;
+                                                continue;
+                                            }
+                                            for (int b = 0; b < inactive_blocks.Length; b++)
+                                            {
+                                                if (inactive_blocks[b] < counter)
+                                                {
+                                                    skip += 1;
+                                                }
+                                                else
+                                                {
+                                                    break;
+                                                }
+                                            }
+
+                                            block = grid[counter - skip];
                                             //omit inactive blocks
                                             if (block.type == GridBlock.Type.Inactive)
                                             {
-                                                Console.Write(marks + "\t");
+                                                file.Write(marks + "    ");
                                                 continue;
                                             }
                                             //property for output
                                             if (block.type == GridBlock.Type.Well)
                                             {
-                                                file.Write(block.pressure + "\t");
+                                                file.Write(block.pressure.ToString().PadRight(16) + "    ");
                                             }
                                             else
                                             {
-                                                file.Write(marks + "\t");
+                                                file.Write(marks + "    ");
                                             }
 
                                             counter += 1;
@@ -403,21 +576,41 @@ namespace SinglePhase
                                         counter = grid_size - k * j * x;
                                         for (int i = 1; i <= x; i++)
                                         {
-                                            block = grid[counter];
+                                            //initialize
+                                            skip = 0;
+                                            if (inactive_blocks.Contains(counter))
+                                            {
+                                                file.Write(marks + "    ");
+                                                counter += 1;
+                                                continue;
+                                            }
+                                            for (int b = 0; b < inactive_blocks.Length; b++)
+                                            {
+                                                if (inactive_blocks[b] < counter)
+                                                {
+                                                    skip += 1;
+                                                }
+                                                else
+                                                {
+                                                    break;
+                                                }
+                                            }
+
+                                            block = grid[counter - skip];
                                             //omit inactive blocks
                                             if (block.type == GridBlock.Type.Inactive)
                                             {
-                                                Console.Write(marks + "\t");
+                                                file.Write(marks + "    ");
                                                 continue;
                                             }
                                             //property for output
                                             if (block.type == GridBlock.Type.Well)
                                             {
-                                                file.Write(block.BHP.ToString().PadRight(16) + "\t");
+                                                file.Write(block.BHP.ToString().PadRight(16) + "    ");
                                             }
                                             else
                                             {
-                                                file.Write(marks + "\t");
+                                                file.Write(marks + "    ");
                                             }
 
                                             counter += 1;
@@ -435,12 +628,14 @@ namespace SinglePhase
                                 file.WriteLine("Material Balance Error :");
                                 file.WriteLine();
 
-                                if (compressibility == TypeDefinitions.Compressibility.Incompressible)
+                                if (true)
                                 {
-                                    double error = MBE.incompressible(grid);
+                                    double error = IMB;
                                     file.WriteLine(error);
                                 }
                             }
+
+                            file.WriteLine();
                         }
 
                     Console.WriteLine("Data was output to the {0}_ouput.txt file", file_name);
@@ -462,15 +657,46 @@ namespace SinglePhase
                                     counter = grid_size - k * j * x;
                                     for (int i = 1; i <= x; i++)
                                     {
-                                        block = grid[counter];
+                                        if (counter == (grid_size - x) && time != -1)
+                                        {
+                                            file.WriteLine(marks2);
+                                            file.WriteLine(marks2);
+
+                                            file.Write("Current Simulation Time : {0}", time);
+                                            file.WriteLine();
+                                            file.WriteLine();
+
+                                        }
+
+                                        //initialize
+                                        skip = 0;
+                                        if (inactive_blocks.Contains(counter))
+                                        {
+                                            file.Write(marks + "    ");
+                                            counter += 1;
+                                            continue;
+                                        }
+                                        for (int b = 0; b < inactive_blocks.Length; b++)
+                                        {
+                                            if (inactive_blocks[b] < counter)
+                                            {
+                                                skip += 1;
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                        }
+
+                                        block = grid[counter - skip];
                                         //omit inactive blocks
                                         if (block.type == GridBlock.Type.Inactive)
                                         {
-                                            Console.Write(marks + "\t");
+                                            file.Write(marks + "    ");
                                             continue;
                                         }
                                         //property for output
-                                        file.Write(block.pressure + "\t");
+                                        file.Write(block.pressure.ToString().PadRight(16) + "    ");
 
                                         counter += 1;
                                     }
@@ -492,25 +718,55 @@ namespace SinglePhase
                             {
                                 for (int j = 1; j <= y; j++)
                                 {
+                                    if (counter == (grid_size - x) && time != -1)
+                                    {
+                                        file.WriteLine(marks2);
+                                        file.WriteLine(marks2);
+
+                                        file.Write("Current Simulation Time : {0}", time);
+                                        file.WriteLine();
+                                        file.WriteLine();
+                                    }
+
                                     //this line is used to print blocks in a reversed order so they appear exactly like the naturally ordered blocks
                                     counter = grid_size - k * j * x;
                                     for (int i = 1; i <= x; i++)
                                     {
-                                        block = grid[counter];
+                                        //initialize
+                                        skip = 0;
+                                        if (inactive_blocks.Contains(counter))
+                                        {
+                                            file.Write(marks + "    ");
+                                            counter += 1;
+                                            continue;
+                                        }
+                                        for (int b = 0; b < inactive_blocks.Length; b++)
+                                        {
+                                            if (inactive_blocks[b] < counter)
+                                            {
+                                                skip += 1;
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                        }
+
+                                        block = grid[counter - skip];
                                         //omit inactive blocks
                                         if (block.type == GridBlock.Type.Inactive)
                                         {
-                                            Console.Write(marks + "\t");
+                                            file.Write(marks + "    ");
                                             continue;
                                         }
                                         //property for output
                                         if (block.type == GridBlock.Type.Well)
                                         {
-                                            file.Write(block.well_flow_rate.ToString().PadRight(16) + "\t");
+                                            file.Write(block.well_flow_rate.ToString().PadRight(16) + "    ");
                                         }
                                         else
                                         {
-                                            file.Write(marks + "\t");
+                                            file.Write(marks + "    ");
                                         }
 
                                         counter += 1;
@@ -533,25 +789,55 @@ namespace SinglePhase
                             {
                                 for (int j = 1; j <= y; j++)
                                 {
+                                    if (counter == (grid_size - x) && time != -1)
+                                    {
+                                        file.WriteLine(marks2);
+                                        file.WriteLine(marks2);
+
+                                        file.Write("Current Simulation Time : {0}", time);
+                                        file.WriteLine();
+                                        file.WriteLine();
+                                    }
+
                                     //this line is used to print blocks in a reversed order so they appear exactly like the naturally ordered blocks
                                     counter = grid_size - k * j * x;
                                     for (int i = 1; i <= x; i++)
                                     {
-                                        block = grid[counter];
+                                        //initialize
+                                        skip = 0;
+                                        if (inactive_blocks.Contains(counter))
+                                        {
+                                            file.Write(marks + "    ");
+                                            counter += 1;
+                                            continue;
+                                        }
+                                        for (int b = 0; b < inactive_blocks.Length; b++)
+                                        {
+                                            if (inactive_blocks[b] < counter)
+                                            {
+                                                skip += 1;
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                        }
+
+                                        block = grid[counter - skip];
                                         //omit inactive blocks
                                         if (block.type == GridBlock.Type.Inactive)
                                         {
-                                            Console.Write(marks + "\t");
+                                            file.Write(marks + "    ");
                                             continue;
                                         }
                                         //property for output
                                         if (block.type == GridBlock.Type.Well)
                                         {
-                                            file.Write(block.pressure + "\t");
+                                            file.Write(block.pressure.ToString().PadRight(16) + "    ");
                                         }
                                         else
                                         {
-                                            file.Write(marks + "\t");
+                                            file.Write(marks + "    ");
                                         }
 
                                         counter += 1;
@@ -574,25 +860,55 @@ namespace SinglePhase
                             {
                                 for (int j = 1; j <= y; j++)
                                 {
+                                    if (counter == (grid_size - x) && time != -1)
+                                    {
+                                        file.WriteLine(marks2);
+                                        file.WriteLine(marks2);
+
+                                        file.Write("Current Simulation Time : {0}", time);
+                                        file.WriteLine();
+                                        file.WriteLine();
+                                    }
+
                                     //this line is used to print blocks in a reversed order so they appear exactly like the naturally ordered blocks
                                     counter = grid_size - k * j * x;
                                     for (int i = 1; i <= x; i++)
                                     {
-                                        block = grid[counter];
+                                        //initialize
+                                        skip = 0;
+                                        if (inactive_blocks.Contains(counter))
+                                        {
+                                            file.Write(marks + "    ");
+                                            counter += 1;
+                                            continue;
+                                        }
+                                        for (int b = 0; b < inactive_blocks.Length; b++)
+                                        {
+                                            if (inactive_blocks[b] < counter)
+                                            {
+                                                skip += 1;
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                        }
+
+                                        block = grid[counter - skip];
                                         //omit inactive blocks
                                         if (block.type == GridBlock.Type.Inactive)
                                         {
-                                            Console.Write(marks + "\t");
+                                            file.Write(marks + "    ");
                                             continue;
                                         }
                                         //property for output
                                         if (block.type == GridBlock.Type.Well)
                                         {
-                                            file.Write(block.BHP.ToString().PadRight(16) + "\t");
+                                            file.Write(block.BHP.ToString().PadRight(16) + "    ");
                                         }
                                         else
                                         {
-                                            file.Write(marks + "\t");
+                                            file.Write(marks + "    ");
                                         }
 
                                         counter += 1;
@@ -609,10 +925,17 @@ namespace SinglePhase
                     if (what.Contains(property))
                     {
                         using (StreamWriter file = new StreamWriter(file_name + "_" + property + "_output.txt", true))
-                            if (compressibility == TypeDefinitions.Compressibility.Incompressible)
+                            if (true)
                             {
-                                double error = MBE.incompressible(grid);
-                                file.WriteLine(error);
+                                if (time != -1)
+                                {
+                                    file.Write(time.ToString().PadRight(8) + "    ");
+                                }
+
+                                double error = IMB;
+                                file.Write(error);
+
+                                file.Write("\r\n");
                             }
 
                         Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file", property, file_name);
@@ -622,17 +945,27 @@ namespace SinglePhase
             #endregion
         }
 
-        public void writeFormatted()
+        private void writeFormatted()
         {
             writeFormatted(this.where);
         }
 
-        public void writeNoFormat(Where where)
+        private void writeNoFormat(Where where)
         {
             #region Console
             //output to the console
             if (where == Where.Console)
             {
+                if (time != -1)
+                {
+                    Console.WriteLine(marks2);
+                    Console.WriteLine(marks2);
+
+                    Console.WriteLine("Current Simulation Time : {0}", time);
+                    Console.WriteLine();
+                    Console.WriteLine();
+                }
+
                 /////////////////////////////////////////////////////////////////////////
                 if (what.Contains("pressure"))
                 {
@@ -645,14 +978,14 @@ namespace SinglePhase
                         //omit inactive blocks
                         if (block.type == GridBlock.Type.Inactive)
                         {
-                            Console.Write(marks + "\t");
+                            Console.Write(marks + "    ");
                             continue;
                         }
                         //property for output
-                        Console.Write(block.pressure + "\t");
+                        Console.Write(block.pressure.ToString().PadRight(16) + "    ");
                     }
 
-                    Console.Write("\n");
+                    Console.Write("\n\n");
                 }
 
                 /////////////////////////////////////////////////////////////////////////
@@ -667,20 +1000,25 @@ namespace SinglePhase
                         //omit inactive blocks
                         if (block.type == GridBlock.Type.Inactive)
                         {
-                            Console.Write(marks + "\t");
+                            Console.Write(marks + "    ");
+                            continue;
+                        }
+                        else if (block.type != GridBlock.Type.Well)
+                        {
+                            Console.Write(marks + "    ");
                             continue;
                         }
                         //property for output
-                        Console.Write(block.well_flow_rate.ToString().PadRight(16) + "\t");
+                        Console.Write(block.well_flow_rate.ToString().PadRight(16) + "    ");
                     }
 
-                    Console.Write("\n");
+                    Console.Write("\n\n");
                 }
 
                 /////////////////////////////////////////////////////////////////////////
                 if (what.Contains("well_block_pressure"))
                 {
-                    Console.WriteLine("Well Rates :");
+                    Console.WriteLine("Well Block Pressure :");
                     Console.WriteLine();
 
                     for (int i = 0; i < grid.Length; i++)
@@ -689,14 +1027,19 @@ namespace SinglePhase
                         //omit inactive blocks
                         if (block.type == GridBlock.Type.Inactive)
                         {
-                            Console.Write(marks + "\t");
+                            Console.Write(marks + "    ");
+                            continue;
+                        }
+                        else if (block.type != GridBlock.Type.Well)
+                        {
+                            Console.Write(marks + "    ");
                             continue;
                         }
                         //property for output
-                        Console.Write(block.pressure + "\t");
+                        Console.Write(block.pressure.ToString().PadRight(16) + "    ");
                     }
 
-                    Console.Write("\n");
+                    Console.Write("\n\n");
                 }
 
                 /////////////////////////////////////////////////////////////////////////
@@ -711,14 +1054,19 @@ namespace SinglePhase
                         //omit inactive blocks
                         if (block.type == GridBlock.Type.Inactive)
                         {
-                            Console.Write(marks + "\t");
+                            Console.Write(marks + "    ");
+                            continue;
+                        }
+                        else if (block.type != GridBlock.Type.Well)
+                        {
+                            Console.Write(marks + "    ");
                             continue;
                         }
                         //property for output
-                        Console.Write(block.BHP.ToString().PadRight(16) + "\t");
+                        Console.Write(block.BHP.ToString().PadRight(16) + "    ");
                     }
 
-                    Console.Write("\n");
+                    Console.Write("\n\n");
                 }
 
                 /////////////////////////////////////////////////////////////////////////
@@ -727,7 +1075,7 @@ namespace SinglePhase
                     Console.WriteLine("Material Balance Error :");
                     Console.WriteLine();
 
-                    double error = MBE.incompressible(grid);
+                    double error = IMB;
                     Console.WriteLine(error);
                 }
 
@@ -744,6 +1092,15 @@ namespace SinglePhase
                     using (StreamWriter file = new StreamWriter(file_name + "_output.txt", true))
                         for (int a = 0; a < what.Length; a++)
                         {
+                            if (a == 0 && time != -1)
+                            {
+                                file.WriteLine(marks2);
+                                file.WriteLine(marks2);
+
+                                file.WriteLine("Current Simulation Time : {0}", time);
+                                file.WriteLine();
+                            }
+
                             string property = what[a];
                             /////////////////////////////////////////////////////////////////////////
                             if (property == "pressure")
@@ -757,11 +1114,11 @@ namespace SinglePhase
                                     //omit inactive blocks
                                     if (block.type == GridBlock.Type.Inactive)
                                     {
-                                        Console.Write(marks + "\t");
+                                        file.Write(marks + "    ");
                                         continue;
                                     }
                                     //property for output
-                                    file.Write(block.pressure + "\t");
+                                    file.Write(block.pressure.ToString().PadRight(16) + "    ");
                                 }
 
                                 file.WriteLine();
@@ -778,17 +1135,17 @@ namespace SinglePhase
                                     //omit inactive blocks
                                     if (block.type == GridBlock.Type.Inactive)
                                     {
-                                        Console.Write(marks + "\t");
+                                        file.Write(marks + "    ");
                                         continue;
                                     }
                                     //property for output
                                     if (block.type == GridBlock.Type.Well)
                                     {
-                                        file.Write(block.well_flow_rate + "\t");
+                                        file.Write(block.well_flow_rate.ToString().PadRight(16) + "    ");
                                     }
                                     else
                                     {
-                                        file.Write(marks + "\t");
+                                        file.Write(marks + "    ");
                                     }
                                 }
 
@@ -797,7 +1154,7 @@ namespace SinglePhase
                             /////////////////////////////////////////////////////////////////////////
                             else if (property.Contains("well_block_pressure"))
                             {
-                                file.WriteLine("Well Rates :");
+                                file.WriteLine("Well Block Pressure :");
                                 file.WriteLine();
 
                                 for (int i = 0; i < grid.Length; i++)
@@ -806,17 +1163,17 @@ namespace SinglePhase
                                     //omit inactive blocks
                                     if (block.type == GridBlock.Type.Inactive)
                                     {
-                                        Console.Write(marks + "\t");
+                                        file.Write(marks + "    ");
                                         continue;
                                     }
                                     //property for output
                                     if (block.type == GridBlock.Type.Well)
                                     {
-                                        file.Write(block.pressure + "\t");
+                                        file.Write(block.pressure.ToString().PadRight(16) + "    ");
                                     }
                                     else
                                     {
-                                        file.Write(marks + "\t");
+                                        file.Write(marks + "    ");
                                     }
                                 }
 
@@ -834,17 +1191,17 @@ namespace SinglePhase
                                     //omit inactive blocks
                                     if (block.type == GridBlock.Type.Inactive)
                                     {
-                                        Console.Write(marks + "\t");
+                                        file.Write(marks + "    ");
                                         continue;
                                     }
                                     //property for output
                                     if (block.type == GridBlock.Type.Well)
                                     {
-                                        file.Write(block.BHP + "\t");
+                                        file.Write(block.BHP.ToString().PadRight(16) + "    ");
                                     }
                                     else
                                     {
-                                        file.Write(marks + "\t");
+                                        file.Write(marks + "    ");
                                     }
                                 }
 
@@ -856,9 +1213,9 @@ namespace SinglePhase
                                 file.WriteLine("Material Balance Error :");
                                 file.WriteLine();
 
-                                if (compressibility == TypeDefinitions.Compressibility.Incompressible)
+                                if (true)
                                 {
-                                    double error = MBE.incompressible(grid);
+                                    double error = IMB;
                                     file.WriteLine(error);
                                 }
                             }
@@ -877,15 +1234,37 @@ namespace SinglePhase
                         using (StreamWriter file = new StreamWriter(file_name + "_" + property + "_output.txt", true))
                             for (int i = 0; i < grid.Length; i++)
                             {
+                                if (time == 0 && i == 0 && i == 0)
+                                {
+                                    file.Write("Time".PadRight(8) );
+                                    for (int c = 0; c < grid.Length; c++)
+                                    {
+                                        string temp = "GridBlock " + c;
+                                        file.Write(temp.PadRight(16) + "    ");
+                                    }
+                                    file.Write("\r\n");
+                                    file.Write("\r\n");
+
+                                }
+
+                                if (i == 0 && time != -1)
+                                {
+                                    //file.WriteLine();
+                                    file.Write(time.ToString().PadRight(8));
+                                }
+
                                 block = grid[i];
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
-                                    Console.Write(marks + "\t");
+                                    file.Write(marks + "    ");
                                     continue;
                                 }
                                 //property for output
-                                file.Write(block.pressure + "\t");
+                                file.Write(block.pressure.ToString().PadRight(16) + "    ");
+
+                                if (i == grid.Length - 1) file.Write("\r\n");
+                                
                             }
 
                         Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file", property, file_name);
@@ -898,22 +1277,43 @@ namespace SinglePhase
                         using (StreamWriter file = new StreamWriter(file_name + "_" + property + "_output.txt", true))
                             for (int i = 0; i < grid.Length; i++)
                             {
+                                if (time == 0 && i == 0)
+                                {
+                                    file.Write("Time".PadRight(8) );
+                                    for (int c = 0; c < grid.Length; c++)
+                                    {
+                                        string temp = "GridBlock " + c;
+                                        file.Write(temp.PadRight(16) + "    ");
+                                    }
+                                    file.Write("\r\n");
+                                    file.Write("\r\n");
+
+                                }
+
+                                if (i == 0 && time != -1)
+                                {
+                                    file.Write(time.ToString().PadRight(8));
+                                }
+
                                 block = grid[i];
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
-                                    Console.Write(marks + "\t");
+                                    file.Write(marks + "    ");
                                     continue;
                                 }
                                 //property for output
                                 if (block.type == GridBlock.Type.Well)
                                 {
-                                    file.Write(block.well_flow_rate + "\t");
+                                    file.Write(block.well_flow_rate.ToString().PadRight(16) + "    ");
                                 }
                                 else
                                 {
-                                    file.Write(marks + "\t");
+                                    file.Write(marks + "    ");
                                 }
+
+                                if (i == grid.Length - 1) file.Write("\r\n");
+
                             }
 
                         Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file", property, file_name);
@@ -926,22 +1326,43 @@ namespace SinglePhase
                         using (StreamWriter file = new StreamWriter(file_name + "_" + property + "_output.txt", true))
                             for (int i = 0; i < grid.Length; i++)
                             {
+                                if (time == 0 && i == 0)
+                                {
+                                    file.Write("Time".PadRight(8) );
+                                    for (int c = 0; c < grid.Length; c++)
+                                    {
+                                        string temp = "GridBlock " + c;
+                                        file.Write(temp.PadRight(16) + "    ");
+                                    }
+                                    file.Write("\r\n");
+                                    file.Write("\r\n");
+
+                                }
+
+                                if (i == 0 && time != -1)
+                                {
+                                    file.Write(time.ToString().PadRight(8));
+                                }
+
                                 block = grid[i];
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
-                                    Console.Write(marks + "\t");
+                                    file.Write(marks + "    ");
                                     continue;
                                 }
                                 //property for output
                                 if (block.type == GridBlock.Type.Well)
                                 {
-                                    file.Write(block.pressure + "\t");
+                                    file.Write(block.pressure.ToString().PadRight(16) + "    ");
                                 }
                                 else
                                 {
-                                    file.Write(marks + "\t");
+                                    file.Write(marks + "    ");
                                 }
+
+                                if (i == grid.Length - 1) file.Write("\r\n");
+
                             }
 
                         Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file", property, file_name);
@@ -954,22 +1375,43 @@ namespace SinglePhase
                         using (StreamWriter file = new StreamWriter(file_name + "_" + property + "_output.txt", true))
                             for (int i = 0; i < grid.Length; i++)
                             {
+                                if (time == 0 && i == 0)
+                                {
+                                    file.Write("Time".PadRight(8) );
+                                    for (int c = 0; c < grid.Length; c++)
+                                    {
+                                        string temp = "GridBlock " + c;
+                                        file.Write(temp.PadRight(16) + "    ");
+                                    }
+                                    file.Write("\r\n");
+                                    file.Write("\r\n");
+
+                                }
+
+                                if (i == 0 && time != -1)
+                                {
+                                    file.Write(time.ToString().PadRight(8));
+                                }
+
                                 block = grid[i];
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
-                                    Console.Write(marks + "\t");
+                                    file.Write(marks + "    ");
                                     continue;
                                 }
                                 //property for output
                                 if (block.type == GridBlock.Type.Well)
                                 {
-                                    file.Write(block.BHP + "\t");
+                                    file.Write(block.BHP.ToString().PadRight(16) + "    ");
                                 }
                                 else
                                 {
-                                    file.Write(marks + "\t");
+                                    file.Write(marks + "    ");
                                 }
+
+                                if (i == grid.Length - 1) file.Write("\r\n");
+
                             }
 
                         Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file", property, file_name);
@@ -980,10 +1422,17 @@ namespace SinglePhase
                     if (what.Contains(property))
                     {
                         using (StreamWriter file = new StreamWriter(file_name + "_" + property + "_output.txt", true))
-                            if (compressibility == TypeDefinitions.Compressibility.Incompressible)
+                            if (true)
                             {
-                                double error = MBE.incompressible(grid);
-                                file.WriteLine(error);
+                                if (time != -1)
+                                {
+                                    file.Write(time.ToString().PadRight(8));
+                                }
+
+                                double error = IMB;
+                                file.Write(error);
+
+                                file.WriteLine();
                             }
 
                         Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file", property, file_name);
@@ -993,13 +1442,17 @@ namespace SinglePhase
             #endregion
         }
 
-        public void writeNoFormat()
+        private void writeNoFormat()
         {
             writeNoFormat(this.where);
         }
 
-        public void write()
+        public void write(double IMB, double time = -1)
         {
+            this.time = time;
+
+            this.IMB = IMB;
+
             if (formatted)
             {
                 writeFormatted();

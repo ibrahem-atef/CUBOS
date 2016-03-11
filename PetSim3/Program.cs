@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using CUBOS;
 using System.Diagnostics;
 
-namespace PetSim3
+namespace PetSim
 {
     class Program
     {
