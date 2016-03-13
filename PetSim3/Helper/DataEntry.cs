@@ -85,8 +85,12 @@ namespace CUBOS
 
             if (dictionary.Count > 0)
             {
+                // Chek if the input data file exists and it succefully was loaded.
                 simulator_data.successfully_loaded_data = true;
+                // Sets the file name.
                 simulator_data.file_name = file_name;
+                // This variable stores the size of the grid according to the numbering system used "active-blocks only, or all blocks".
+                int size = 0;
                 String key;
 
                 #region Run Specs
@@ -184,68 +188,77 @@ namespace CUBOS
 
                 #region Grid
 
-                key = "homogeneous";
-                if (dictionary.ContainsKey(key))
+                // For a rectangular grid
+                if (simulator_data.grid_type == Transmissibility.GridType.Rectangular)
                 {
-                    if (dictionary[key] == "yes")
+                    key = "homogeneous";
+                    if (dictionary.ContainsKey(key))
                     {
-                        simulator_data.homogeneous = true;
+                        if (dictionary[key] == "yes")
+                        {
+                            simulator_data.homogeneous = true;
+                        }
+                        else
+                        {
+                            simulator_data.homogeneous = false;
+                        }
+                    }
+
+                    key = "inactive_blocks";
+                    if (dictionary.ContainsKey(key))
+                    {
+                        simulator_data.inactive_blocks = getArrayFromDictionary_int(dictionary, key);
                     }
                     else
                     {
-                        simulator_data.homogeneous = false;
+                        simulator_data.inactive_blocks = new int[0];
+                    }
+
+                    key = "grid_dimensions";
+                    if (dictionary.ContainsKey(key))
+                    {
+                        string[] grid_dimensions = dictionary[key].Split(',');
+                        simulator_data.x = int.Parse(grid_dimensions[0]); simulator_data.y = int.Parse(grid_dimensions[1]); simulator_data.z = int.Parse(grid_dimensions[2]);
+                    }
+
+                    // Set the size of the grid according to the numbering system used "active-blocks only, or all blocks"
+                    if (simulator_data.natural_ordering == SimulatorData.NaturalOrdering.All_Blocks)
+                    {
+                        size = simulator_data.x * simulator_data.y * simulator_data.z;
+                    }
+                    else
+                    {
+                        size = simulator_data.x * simulator_data.y * simulator_data.z - simulator_data.inactive_blocks.Length;
+                    }
+                    //////////////////////////////////////////////////////////////////
+
+                    //Block dimensions
+                    if (simulator_data.homogeneous == true)
+                    {
+                        simulator_data.delta_X = int.Parse(dictionary["delta_x"]);
+                        simulator_data.delta_Y = int.Parse(dictionary["delta_y"]);
+                        simulator_data.delta_Z = int.Parse(dictionary["delta_z"]);
+                    }
+                    else
+                    {
+                        //Delta x values
+                        simulator_data.delta_X_array = getArrayFromDictionary_int(dictionary, "delta_x");
+
+                        //Delta y values
+                        simulator_data.delta_Y_array = getArrayFromDictionary_int(dictionary, "delta_y");
+
+                        //Heights values
+                        simulator_data.delta_Z_array = getArrayFromDictionary_int(dictionary, "delta_z");
+
                     }
                 }
-
-                key = "inactive_blocks";
-                if (dictionary.ContainsKey(key))
-                {
-                    simulator_data.inactive_blocks = getArrayFromDictionary_int(dictionary, key);
-                }
+                // For a cylindrical grid
+                // Single-well simulations. Always homogeneous rock properties. No in-active blocks
                 else
                 {
-                    simulator_data.inactive_blocks = new int[0];
-                }
-
-                key = "grid_dimensions";
-                if (dictionary.ContainsKey(key))
-                {
-                    string[] grid_dimensions = dictionary[key].Split(',');
-                    simulator_data.x = int.Parse(grid_dimensions[0]); simulator_data.y = int.Parse(grid_dimensions[1]); simulator_data.z = int.Parse(grid_dimensions[2]);
-                }
-
-                //Set the size of the grid according to the numbering system used "active-blocks only, or all blocks"
-                int size;
-
-                if (simulator_data.natural_ordering == SimulatorData.NaturalOrdering.All_Blocks)
-                {
-                    size = simulator_data.x * simulator_data.y * simulator_data.z;
-                }
-                else
-                {
-                    size = simulator_data.x * simulator_data.y * simulator_data.z - simulator_data.inactive_blocks.Length;
-                }
-                //////////////////////////////////////////////////////////////////
-
-                //Block dimensions
-                if (simulator_data.homogeneous == true)
-                {
-                    simulator_data.delta_X = int.Parse(dictionary["delta_x"]);
-                    simulator_data.delta_Y = int.Parse(dictionary["delta_y"]);
-                    simulator_data.delta_Z = int.Parse(dictionary["delta_z"]);
-                }
-                else
-                {
-                    //Delta x values
-                    simulator_data.delta_X_array = getArrayFromDictionary_int(dictionary, "delta_x");
-
-                    //Delta y values
-                    simulator_data.delta_Y_array = getArrayFromDictionary_int(dictionary, "delta_y");
-
-                    //Heights values
-                    simulator_data.delta_Z_array = getArrayFromDictionary_int(dictionary, "delta_z");
 
                 }
+                
 
                 #endregion
 
