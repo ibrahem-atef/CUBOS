@@ -5,7 +5,7 @@
 *.pydevproject
 .project
 .metadata
-bin/
+# bin/
 tmp/
 *.tmp
 *.bak
@@ -43,11 +43,11 @@ local.properties
 
 # Build results
 
-[Dd]ebug/
-[Rr]elease/
+# [Dd]ebug/
+# [Rr]elease/
 x64/
 build/
-[Bb]in/
+# [Bb]in/
 [Oo]bj/
 
 [Pp]ackages/
@@ -218,3 +218,6 @@ pip-log.txt
 .mr.developer.cfg
 *.exe
 *.dll
+*.pdb
+*.exe.config
+*.exe.manifest
