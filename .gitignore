@@ -221,3 +221,5 @@ pip-log.txt
 *.pdb
 *.exe.config
 *.exe.manifest
+[Bb]in/[Dd]ebug/MathNet.Numerics.xml
+[Bb]in/[Rr]elease/MathNet.Numerics.xml
