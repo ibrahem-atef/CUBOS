@@ -153,7 +153,7 @@ namespace CUBOS
                 //#########################################################################################
                 //Assign PVT and rock properties
 
-                block.delta_x = delta_X[block.x]; block.delta_y = delta_Y[block.y]; block.h = delta_Z[block.z];
+                block.delta_x = delta_X[block.x]; block.delta_y = delta_Y[block.y]; block.h = delta_Z[counter];
                 block.bulk_volume = block.delta_x * block.delta_y * block.h;
 
                 block.Kx = Kx_data[counter]; block.Ky = Ky_data[counter]; block.Kz = Kz_data[counter];
@@ -289,7 +289,7 @@ namespace CUBOS
                     {
                         y_counter = block.north_counter != -1 ? block.north_counter : block.south_counter;
 
-                        block.GF_y = Transmissibility.getGeometricFactor(block, grid[y_counter], grid_type, direction_x);
+                        block.GF_y = Transmissibility.getGeometricFactor(block, grid[y_counter], grid_type, direction_y);
                     }
                 }
             }
@@ -525,7 +525,7 @@ namespace CUBOS
                 //#########################################################################################
                 //Assign PVT and rock properties
 
-                block.delta_x = delta_X[block.x]; block.delta_y = delta_Y[block.y]; block.h = delta_Z[block.z];
+                block.delta_x = delta_X[block.x]; block.delta_y = delta_Y[block.y]; block.h = delta_Z[counter];
                 block.bulk_volume = block.delta_x * block.delta_y * block.h;
 
                 block.Kx = Kx_data[counter]; block.Ky = Ky_data[counter]; block.Kz = Kz_data[counter];
@@ -657,7 +657,7 @@ namespace CUBOS
                     {
                         y_counter = block.north_counter != -1 ? block.north_counter : block.south_counter;
 
-                        block.GF_y = Transmissibility.getGeometricFactor(block, grid[y_counter], grid_type, direction_x);
+                        block.GF_y = Transmissibility.getGeometricFactor(block, grid[y_counter], grid_type, direction_y);
                     }
                 }
             }
