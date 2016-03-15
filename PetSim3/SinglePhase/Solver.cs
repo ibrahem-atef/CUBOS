@@ -60,7 +60,7 @@ namespace CUBOS
                 if (block.west_counter != -1)
                 {
                     next_block = grid[block.west_counter];
-                    T = Transmissibility.getTransmissibility(block, next_block, block.GF_x, phase);
+                    T = Transmissibility.getTransmissibility(block, next_block, next_block.GF_x, phase);
                     matrix_P[i][next_block.counter] = T;
                     temp -= T;
                 }
@@ -76,7 +76,7 @@ namespace CUBOS
                 if (block.south_counter != -1)
                 {
                     next_block = grid[block.south_counter];
-                    T = Transmissibility.getTransmissibility(block, next_block, block.GF_y, phase);
+                    T = Transmissibility.getTransmissibility(block, next_block, next_block.GF_y, phase);
                     matrix_P[i][next_block.counter] = T;
                     temp -= T;
                 }
