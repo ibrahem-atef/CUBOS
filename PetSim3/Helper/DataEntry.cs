@@ -291,7 +291,14 @@ namespace CUBOS
                     simulator_data.Ky_data_array = getArrayFromDictionary_double(dictionary, "Ky");
 
                     //Kz values
-                    simulator_data.Kz_data_array = getArrayFromDictionary_double(dictionary, "Kz");
+                    if (dictionary.ContainsKey("Kz"))
+                    {
+                        simulator_data.Kz_data_array = getArrayFromDictionary_double(dictionary, "Kz");
+                    }
+                    else
+                    {
+                        simulator_data.Kz_data_array = new double[size];
+                    }
 
                     //Porosity values
                     simulator_data.porosity_array = getArrayFromDictionary_double(dictionary, "porosity");
