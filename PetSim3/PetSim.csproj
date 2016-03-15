@@ -100,6 +100,8 @@
     <Content Include="bin\Debug\data\6_output.txt" />
     <Content Include="bin\Debug\data\7.txt" />
     <Content Include="bin\Debug\data\7_output.txt" />
+    <Content Include="bin\Debug\data\8.txt" />
+    <Content Include="bin\Debug\data\8_output.txt" />
     <Content Include="SinglePhase\Readme.txt" />
   </ItemGroup>
   <ItemGroup>
