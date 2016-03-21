@@ -140,20 +140,22 @@ namespace CUBOS
             //Assign the values of viscosity, FVF and Kr according to the appropriate phase
             if (phase == Phase.Oil)
             {
-                viscosity = upstream_block.oil_viscosity;
-                FVF = upstream_block.Bo;
+                viscosity = 2 / (1 / block_1.oil_viscosity + 1 / block_2.oil_viscosity);
+                FVF = 2 / (1 / block_1.Bo + 1 / block_2.Bo);
                 Kr = upstream_block.Kro;
             }
             else if (phase == Phase.Gas)
             {
-                viscosity = upstream_block.gas_viscosity;
-                FVF = upstream_block.Bg;
+                viscosity = 2 / (1 / block_1.gas_viscosity + 1 / block_2.gas_viscosity);
+                FVF = 2 / (1 / block_1.Bg + 1 / block_2.Bg);
                 Kr = upstream_block.Krg;
             }
             else
             {
-                viscosity = upstream_block.water_viscosity;
-                FVF = upstream_block.Bw;
+                viscosity = 2 / (1 / block_1.water_viscosity + 1 / block_2.water_viscosity);
+                FVF = 2 / (1 / block_1.Bw + 1 / block_2.Bw);
+                //viscosity = upstream_block.water_viscosity;
+                //FVF = upstream_block.Bw;
                 Kr = upstream_block.Krw;
             }
 
