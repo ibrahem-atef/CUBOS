@@ -1,0 +1,91 @@
+#Note that using a "#" in the beginning of a line indicates a comment that is ignored in the simulator
+#also a line that contains no equal sign "=" may be used as a comment without using "#"
+# C# languages starts indexing arrays with "0" not "1", so when counting blocks in a grid, start with "0"
+#a default value means the line can be safely removed and the default value internally provided will be used
+
+[Problem]
+
+#book = Basic Applied Reservoir Simulation
+#problem_number = Chapter Project 5.7, first problem: incompressible fluid
+#description = A 2-D grid with varying block depths and thicknesses to model a 3-D structure
+
+[RUN SPECS]
+
+natural_ordering = active_only
+
+single_phase_compressibility = slightly_compressible
+
+grid_type = rectangular
+
+delta_t = 1
+
+time_max = 60
+
+convergence_pressure = 0.001
+
+[Output]
+
+#default value will output all properties; pressure, well_rate, BHP, MBE, well_block_pressure
+#what = well_rate, well_block_pressure
+
+where = file
+
+formatted = yes
+
+single_file = yes
+
+[GRID]
+
+homogeneous  = no
+
+grid_dimensions = 12, 9, 1
+
+#The numbers of the in-active blocks according to the natural ordering of the whole grid
+inactive_blocks = 0 ,1 ,2 ,3 ,4 ,5 ,9 ,10 ,11 ,12 ,13 ,14 ,15 ,16 ,17 ,21 ,22 ,23 ,24 ,25 ,26 ,27 ,28 ,32 ,33 ,34 ,35 ,36 ,37 ,38 ,46 ,47 ,58 ,59 ,89 ,90 ,91 ,94 ,95 ,96 ,100 ,101 ,102 ,103 ,104 ,105 ,106 ,107
+
+delta_x = 439 ,509 ,491 ,596 ,526 ,561 ,912 ,807 ,439 ,877 ,544 ,772
+
+delta_y = 526 ,421 ,316 ,316 ,404 ,491 ,386 ,404 ,474
+
+delta_z = 4 ,5 ,2 ,8 ,7 ,3 ,4 ,10 ,6 ,10 ,19 ,27 ,24 ,10 ,6 ,3 ,5 ,12 ,12 ,40 ,44 ,42 ,32 ,20 ,16 ,10 ,20 ,34 ,35 ,40 ,34 ,32 ,29 ,25 ,22 ,18 ,10 ,3 ,14 ,44 ,36 ,30 ,22 ,16 ,12 ,14 ,15 ,11 ,6 ,3 ,8 ,35 ,30 ,15 ,6 ,4 ,5 ,10 ,12 ,5
+
+depth_top = 9290 ,9280 ,9278 ,9289 ,9281 ,9282 ,9294 ,9290 ,9286 ,9315 ,9297 ,9295 ,9292 ,9289 ,9289 ,9287 ,9342 ,9332 ,9323 ,9305 ,9298 ,9298 ,9296 ,9292 ,9291 ,9288 ,9340 ,9326 ,9316 ,9308 ,9310 ,9313 ,9297 ,9296 ,9295 ,9293 ,9292 ,9295 ,9336 ,9319 ,9316 ,9322 ,9325 ,9315 ,9299 ,9300 ,9299 ,9297 ,9297 ,9305 ,9341 ,9327 ,9330 ,9338 ,9333 ,9311 ,9310 ,9342 ,9345 ,9347
+
+
+[ROCK PROPERTIES]
+
+#If a grid is homgeneous, a single value for each dimension is used
+Kx = 260 ,268 ,260 ,270 ,280 ,270 ,265 ,280 ,290 ,272 ,276 ,273 ,288 ,281 ,274 ,268 ,253 ,259 ,275 ,285 ,290 ,280 ,289 ,277 ,290 ,280 ,258 ,271 ,295 ,297 ,282 ,280 ,281 ,276 ,290 ,293 ,279 ,270 ,265 ,280 ,289 ,278 ,271 ,271 ,270 ,269 ,270 ,279 ,283 ,275 ,267 ,274 ,280 ,265 ,253 ,259 ,270 ,275 ,270 ,252
+
+Ky = 208 ,214.4 ,208 ,216 ,224 ,216 ,212 ,224 ,232 ,217.6 ,220.8 ,218.4 ,230.4 ,224.8 ,219.2 ,214.4 ,202.4 ,207.2 ,220 ,228 ,232 ,224 ,231.2 ,221.6 ,232 ,224 ,206.4 ,216.8 ,236 ,237.6 ,225.6 ,224 ,224.8 ,220.8 ,232 ,234.4 ,223.2 ,216 ,212 ,224 ,231.2 ,222.4 ,216.8 ,216.8 ,216 ,215.2 ,216 ,223.2 ,226.4 ,220 ,213.6 ,219.2 ,224 ,212 ,202.4 ,207.2 ,216 ,220 ,216 ,201.6
+
+porosity = 0.229 ,0.22 ,0.217 ,0.232 ,0.226 ,0.217 ,0.225 ,0.235 ,0.23 ,0.21 ,0.219 ,0.226 ,0.235 ,0.23 ,0.22 ,0.216 ,0.183 ,0.195 ,0.205 ,0.212 ,0.218 ,0.225 ,0.232 ,0.232 ,0.225 ,0.219 ,0.185 ,0.195 ,0.205 ,0.213 ,0.216 ,0.221 ,0.225 ,0.226 ,0.22 ,0.215 ,0.207 ,0.2 ,0.19 ,0.196 ,0.205 ,0.207 ,0.21 ,0.216 ,0.22 ,0.223 ,0.215 ,0.21 ,0.203 ,0.2 ,0.19 ,0.195 ,0.2 ,0.204 ,0.207 ,0.215 ,0.205 ,0.192 ,0.197 ,0.202
+
+compressibility_rock = 0
+
+[PVT]
+
+#FVF = 1
+viscosity = 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000 / 0.918, 0.92, 0.9243, 0.9372, 0.9494, 0.9650, 0.9812, 1.0019
+compressibility_fluid = 0.000009
+density = 52.4
+
+[BOUNDARY CONDITIONS]
+
+initial_pressure = 7750
+
+[WELL DATA]
+
+#use the same numbering scheme as the grid (whether active-blocks only or both active and inactive)
+well_locations = 29, 46
+
+#for each well location, provide the details of the well in order.
+#The scheme for naming the wells,for the first well for example;
+#well_1 = rw, skin, specified_BHP, specified_flow_rate, 1)
+#where "1" is used for a "specified flow rate" well and a value of "0" indicates a "specified BHP"
+#for specified BHP well condition, provide any value for flow rate and for specified  flow rate condition, provide any value for BHP
+
+well_1 = 3, 0, 5600, -2600, 0
+well_2 = 3, 0, 0, 650, 1
+
+

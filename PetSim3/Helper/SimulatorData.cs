@@ -45,6 +45,9 @@ namespace CUBOS
         public bool homogeneous = true;
         public int x, y, z;
 
+        public double depth_top = 0;
+        public double[] depth_top_array;
+
         public int[] inactive_blocks;
 
         #endregion
@@ -69,13 +72,15 @@ namespace CUBOS
 
         #region Initialize PVT
 
-        public double FVF, viscosity;
+        public double FVF, viscosity, density, molecular_weight, temperature;
 
         //For slightly-compressibly fluid
         public double compressibility_fluid;
 
         //For compressible fluid, this data is used for constructing the PVT table
         public double[][] g_data = new double[4][];
+
+        public double[][] water_data = new double[5][];
 
         #endregion
 

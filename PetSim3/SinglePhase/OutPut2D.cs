@@ -638,7 +638,7 @@ namespace SinglePhase
                             file.WriteLine();
                         }
 
-                    Console.WriteLine("Data was output to the {0}_ouput.txt file", file_name);
+                    Console.WriteLine("Data was output to the {0}_ouput.txt file for simulation time = {1}", file_name, time);
                 }
                 else
                 {
@@ -704,7 +704,7 @@ namespace SinglePhase
                                 }
                             }
 
-                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file", property, file_name);
+                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file for simulation time = {2}", property, file_name, time);
                     }
 
                     /////////////////////////////////////////////////////////////////////////
@@ -775,7 +775,7 @@ namespace SinglePhase
                                 }
                             }
 
-                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file", property, file_name);
+                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file for simulation time = {2}", property, file_name, time);
                     }
 
                     /////////////////////////////////////////////////////////////////////////
@@ -846,7 +846,7 @@ namespace SinglePhase
                                 }
                             }
 
-                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file", property, file_name);
+                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file for simulation time = {2}", property, file_name, time);
                     }
 
                     /////////////////////////////////////////////////////////////////////////
@@ -917,7 +917,7 @@ namespace SinglePhase
                                 }
                             }
 
-                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file", property, file_name);
+                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file for simulation time = {2}", property, file_name, time);
                     }
 
                     /////////////////////////////////////////////////////////////////////////
@@ -938,7 +938,7 @@ namespace SinglePhase
                                 file.Write("\r\n");
                             }
 
-                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file", property, file_name);
+                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file for simulation time = {2}", property, file_name, time);
                     }
                 }
             }
@@ -1223,7 +1223,7 @@ namespace SinglePhase
                             file.WriteLine();
                         }
 
-                    Console.WriteLine("Data was output to the {0}_ouput.txt file", file_name);
+                    Console.WriteLine("Data was output to the {0}_ouput.txt file for simulation time = {1}", file_name, time);
                 }
                 else
                 {
@@ -1267,7 +1267,7 @@ namespace SinglePhase
                                 
                             }
 
-                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file", property, file_name);
+                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file for simulation time = {2}", property, file_name, time);
                     }
 
                     /////////////////////////////////////////////////////////////////////////
@@ -1282,8 +1282,11 @@ namespace SinglePhase
                                     file.Write("Time".PadRight(8) );
                                     for (int c = 0; c < grid.Length; c++)
                                     {
-                                        string temp = "GridBlock " + c;
-                                        file.Write(temp.PadRight(16) + "    ");
+                                        if (grid[c].type == GridBlock.Type.Well)
+                                        {
+                                            string temp = "GridBlock " + c;
+                                            file.Write(temp.PadRight(16) + "    ");
+                                        }
                                     }
                                     file.Write("\r\n");
                                     file.Write("\r\n");
@@ -1299,7 +1302,7 @@ namespace SinglePhase
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
-                                    file.Write(marks + "    ");
+                                    //file.Write(marks + "    ");
                                     continue;
                                 }
                                 //property for output
@@ -1309,14 +1312,14 @@ namespace SinglePhase
                                 }
                                 else
                                 {
-                                    file.Write(marks + "    ");
+                                    //file.Write(marks + "    ");
                                 }
 
                                 if (i == grid.Length - 1) file.Write("\r\n");
 
                             }
 
-                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file", property, file_name);
+                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file for simulation time = {2}", property, file_name, time);
                     }
 
                     /////////////////////////////////////////////////////////////////////////
@@ -1331,8 +1334,11 @@ namespace SinglePhase
                                     file.Write("Time".PadRight(8) );
                                     for (int c = 0; c < grid.Length; c++)
                                     {
-                                        string temp = "GridBlock " + c;
-                                        file.Write(temp.PadRight(16) + "    ");
+                                        if (grid[c].type == GridBlock.Type.Well)
+                                        {
+                                            string temp = "GridBlock " + c;
+                                            file.Write(temp.PadRight(16) + "    ");
+                                        }
                                     }
                                     file.Write("\r\n");
                                     file.Write("\r\n");
@@ -1348,7 +1354,7 @@ namespace SinglePhase
                                 //omit inactive blocks
                                 if (block.type == GridBlock.Type.Inactive)
                                 {
-                                    file.Write(marks + "    ");
+                                    //file.Write(marks + "    ");
                                     continue;
                                 }
                                 //property for output
@@ -1358,14 +1364,14 @@ namespace SinglePhase
                                 }
                                 else
                                 {
-                                    file.Write(marks + "    ");
+                                    //file.Write(marks + "    ");
                                 }
 
                                 if (i == grid.Length - 1) file.Write("\r\n");
 
                             }
 
-                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file", property, file_name);
+                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file for simulation time = {2}", property, file_name, time);
                     }
 
                     /////////////////////////////////////////////////////////////////////////
@@ -1414,7 +1420,7 @@ namespace SinglePhase
 
                             }
 
-                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file", property, file_name);
+                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file for simulation time = {2}", property, file_name, time);
                     }
 
                     /////////////////////////////////////////////////////////////////////////
@@ -1435,7 +1441,7 @@ namespace SinglePhase
                                 file.WriteLine();
                             }
 
-                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file", property, file_name);
+                        Console.WriteLine("{0} was output to the {1}_{0}_ouput.txt file for simulation time = {2}", property, file_name, time);
                     }
                 }
             }

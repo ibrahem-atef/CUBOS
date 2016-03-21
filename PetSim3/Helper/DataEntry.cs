@@ -85,8 +85,12 @@ namespace CUBOS
 
             if (dictionary.Count > 0)
             {
+                // Chek if the input data file exists and it succefully was loaded.
                 simulator_data.successfully_loaded_data = true;
+                // Sets the file name.
                 simulator_data.file_name = file_name;
+                // This variable stores the size of the grid according to the numbering system used "active-blocks only, or all blocks".
+                int size = 0;
                 String key;
 
                 #region Run Specs
@@ -184,68 +188,93 @@ namespace CUBOS
 
                 #region Grid
 
-                key = "homogeneous";
-                if (dictionary.ContainsKey(key))
+                // For a rectangular grid
+                if (simulator_data.grid_type == Transmissibility.GridType.Rectangular)
                 {
-                    if (dictionary[key] == "yes")
+                    key = "homogeneous";
+                    if (dictionary.ContainsKey(key))
                     {
-                        simulator_data.homogeneous = true;
+                        if (dictionary[key] == "yes")
+                        {
+                            simulator_data.homogeneous = true;
+                        }
+                        else
+                        {
+                            simulator_data.homogeneous = false;
+                        }
+                    }
+
+                    key = "inactive_blocks";
+                    if (dictionary.ContainsKey(key))
+                    {
+                        simulator_data.inactive_blocks = getArrayFromDictionary_int(dictionary[key]);
                     }
                     else
                     {
-                        simulator_data.homogeneous = false;
+                        simulator_data.inactive_blocks = new int[0];
+                    }
+
+                    key = "grid_dimensions";
+                    if (dictionary.ContainsKey(key))
+                    {
+                        string[] grid_dimensions = dictionary[key].Split(',');
+                        simulator_data.x = int.Parse(grid_dimensions[0]); simulator_data.y = int.Parse(grid_dimensions[1]); simulator_data.z = int.Parse(grid_dimensions[2]);
+                    }
+
+                    // Set the size of the grid according to the numbering system used "active-blocks only, or all blocks"
+                    if (simulator_data.natural_ordering == SimulatorData.NaturalOrdering.All_Blocks)
+                    {
+                        size = simulator_data.x * simulator_data.y * simulator_data.z;
+                    }
+                    else
+                    {
+                        size = simulator_data.x * simulator_data.y * simulator_data.z - simulator_data.inactive_blocks.Length;
+                    }
+                    //////////////////////////////////////////////////////////////////
+
+                    //Block dimensions
+                    if (simulator_data.homogeneous == true)
+                    {
+                        simulator_data.delta_X = int.Parse(dictionary["delta_x"]);
+                        simulator_data.delta_Y = int.Parse(dictionary["delta_y"]);
+                        simulator_data.delta_Z = int.Parse(dictionary["delta_z"]);
+
+                        key = "depth_top";
+                        if (dictionary.ContainsKey(key))
+                        {
+                            simulator_data.depth_top = double.Parse(dictionary["depth_top"]);
+                        }
+                    }
+                    else
+                    {
+                        //Delta x values
+                        simulator_data.delta_X_array = getArrayFromDictionary_int(dictionary["delta_x"]);
+
+                        //Delta y values
+                        simulator_data.delta_Y_array = getArrayFromDictionary_int(dictionary["delta_y"]);
+
+                        //Heights values
+                        simulator_data.delta_Z_array = getArrayFromDictionary_int(dictionary["delta_z"]);
+
+                        key = "depth_top";
+                        if (dictionary.ContainsKey(key))
+                        {
+                            simulator_data.depth_top_array = getArrayFromDictionary_double(dictionary[key]);
+                        }
+                        else
+                        {
+                            simulator_data.depth_top_array = new double[size];
+                        }
+
                     }
                 }
-
-                key = "inactive_blocks";
-                if (dictionary.ContainsKey(key))
-                {
-                    simulator_data.inactive_blocks = getArrayFromDictionary_int(dictionary, key);
-                }
+                // For a cylindrical grid
+                // Single-well simulations. Always homogeneous rock properties. No in-active blocks
                 else
                 {
-                    simulator_data.inactive_blocks = new int[0];
-                }
-
-                key = "grid_dimensions";
-                if (dictionary.ContainsKey(key))
-                {
-                    string[] grid_dimensions = dictionary[key].Split(',');
-                    simulator_data.x = int.Parse(grid_dimensions[0]); simulator_data.y = int.Parse(grid_dimensions[1]); simulator_data.z = int.Parse(grid_dimensions[2]);
-                }
-
-                //Set the size of the grid according to the numbering system used "active-blocks only, or all blocks"
-                int size;
-
-                if (simulator_data.natural_ordering == SimulatorData.NaturalOrdering.All_Blocks)
-                {
-                    size = simulator_data.x * simulator_data.y * simulator_data.z;
-                }
-                else
-                {
-                    size = simulator_data.x * simulator_data.y * simulator_data.z - simulator_data.inactive_blocks.Length;
-                }
-                //////////////////////////////////////////////////////////////////
-
-                //Block dimensions
-                if (simulator_data.homogeneous == true)
-                {
-                    simulator_data.delta_X = int.Parse(dictionary["delta_x"]);
-                    simulator_data.delta_Y = int.Parse(dictionary["delta_y"]);
-                    simulator_data.delta_Z = int.Parse(dictionary["delta_z"]);
-                }
-                else
-                {
-                    //Delta x values
-                    simulator_data.delta_X_array = getArrayFromDictionary_int(dictionary, "delta_x");
-
-                    //Delta y values
-                    simulator_data.delta_Y_array = getArrayFromDictionary_int(dictionary, "delta_y");
-
-                    //Heights values
-                    simulator_data.delta_Z_array = getArrayFromDictionary_int(dictionary, "delta_z");
 
                 }
+                
 
                 #endregion
 
@@ -272,16 +301,23 @@ namespace CUBOS
                 else
                 {
                     //Kx values
-                    simulator_data.Kx_data_array = getArrayFromDictionary_double(dictionary, "Kx");
+                    simulator_data.Kx_data_array = getArrayFromDictionary_double(dictionary["Kx"]);
 
                     //Ky values
-                    simulator_data.Ky_data_array = getArrayFromDictionary_double(dictionary, "Ky");
+                    simulator_data.Ky_data_array = getArrayFromDictionary_double(dictionary["Ky"]);
 
                     //Kz values
-                    simulator_data.Kz_data_array = getArrayFromDictionary_double(dictionary, "Kz");
+                    if (dictionary.ContainsKey("Kz"))
+                    {
+                        simulator_data.Kz_data_array = getArrayFromDictionary_double(dictionary["Kz"]);
+                    }
+                    else
+                    {
+                        simulator_data.Kz_data_array = new double[size];
+                    }
 
                     //Porosity values
-                    simulator_data.porosity_array = getArrayFromDictionary_double(dictionary, "porosity");
+                    simulator_data.porosity_array = getArrayFromDictionary_double(dictionary["porosity"]);
 
                     //Rock Compressiblity
                     key = "compressibility_rock";
@@ -301,10 +337,44 @@ namespace CUBOS
                     simulator_data.FVF = double.Parse(dictionary[key]);
                 }
 
-                key = "viscosity";
+                key = "density";
                 if (dictionary.ContainsKey(key))
                 {
-                    simulator_data.viscosity = double.Parse(dictionary[key]);
+                    simulator_data.density = double.Parse(dictionary[key]);
+                }
+
+                key = "molecular_weight";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.molecular_weight = double.Parse(dictionary[key]);
+                }
+
+                key = "temperature";
+                if (dictionary.ContainsKey(key))
+                {
+                    simulator_data.temperature = double.Parse(dictionary[key]);
+                }
+
+                key = "viscosity";
+                if (simulator_data.compressibility == TypeDefinitions.Compressibility.Incompressible)
+                {
+                    if (dictionary.ContainsKey(key))
+                    {
+                        simulator_data.viscosity = double.Parse(dictionary[key]);
+                    }
+                }
+                else
+                {
+                    if (dictionary[key].Contains(','))
+                    {
+                        double[][] temp = getTwoColumns(dictionary[key]);
+                        simulator_data.water_data[0] = temp[0];
+                        simulator_data.water_data[2] = temp[1];
+                    }
+                    else
+                    {
+                        simulator_data.viscosity = double.Parse(dictionary[key]);
+                    }
                 }
 
                 key = "compressibility_fluid";
@@ -316,14 +386,14 @@ namespace CUBOS
                 key = "g_data_pressure";
                 if (dictionary.ContainsKey(key))
                 {
-                    //pressure
-                    simulator_data.g_data[0] = getArrayFromDictionary_double(dictionary, "g_data_pressure");
-                    //FVF
-                    simulator_data.g_data[1] = getArrayFromDictionary_double(dictionary, "g_data_FVF");
-                    //Viscosity
-                    simulator_data.g_data[2] = getArrayFromDictionary_double(dictionary, "g_data_viscosity");
-                    //Density
-                    simulator_data.g_data[3] = getArrayFromDictionary_double(dictionary, "g_data_density");
+                    ////pressure
+                    //simulator_data.g_data[0] = getArrayFromDictionary_double(dictionary, "g_data_pressure");
+                    ////FVF
+                    //simulator_data.g_data[1] = getArrayFromDictionary_double(dictionary, "g_data_FVF");
+                    ////Viscosity
+                    //simulator_data.g_data[2] = getArrayFromDictionary_double(dictionary, "g_data_viscosity");
+                    ////Density
+                    //simulator_data.g_data[3] = getArrayFromDictionary_double(dictionary, "g_data_density");
                 }
                 #endregion
 
@@ -337,7 +407,7 @@ namespace CUBOS
                 key = "boundary_flow_rate";
                 if (dictionary.ContainsKey(key))
                 {
-                    simulator_data.boundary_flow_rate = getArrayFromDictionary_double(dictionary, key);
+                    simulator_data.boundary_flow_rate = getArrayFromDictionary_double(dictionary[key]);
                 }
                 else
                 {
@@ -347,7 +417,7 @@ namespace CUBOS
                 key = "boundary_pressure_x";
                 if (dictionary.ContainsKey(key))
                 {
-                    simulator_data.boundary_pressure_x = getArrayFromDictionary_double(dictionary, key);
+                    simulator_data.boundary_pressure_x = getArrayFromDictionary_double(dictionary[key]);
                 }
                 else
                 {
@@ -357,7 +427,7 @@ namespace CUBOS
                 key = "boundary_pressure_y";
                 if (dictionary.ContainsKey(key))
                 {
-                    simulator_data.boundary_pressure_y = getArrayFromDictionary_double(dictionary, key);
+                    simulator_data.boundary_pressure_y = getArrayFromDictionary_double(dictionary[key]);
                 }
                 else
                 {
@@ -367,7 +437,7 @@ namespace CUBOS
                 key = "boundary_pressure_gradient_x";
                 if (dictionary.ContainsKey(key))
                 {
-                    simulator_data.boundary_pressure_gradient_x = getArrayFromDictionary_double(dictionary, key);
+                    simulator_data.boundary_pressure_gradient_x = getArrayFromDictionary_double(dictionary[key]);
                 }
                 else
                 {
@@ -377,7 +447,7 @@ namespace CUBOS
                 key = "boundary_pressure_gradient_y";
                 if (dictionary.ContainsKey(key))
                 {
-                    simulator_data.boundary_pressure_gradient_y = getArrayFromDictionary_double(dictionary, key);
+                    simulator_data.boundary_pressure_gradient_y = getArrayFromDictionary_double(dictionary[key]);
                 }
                 else
                 {
@@ -389,7 +459,7 @@ namespace CUBOS
                 key = "well_locations";
                 if (dictionary.ContainsKey(key))
                 {
-                    simulator_data.well_locations = getArrayFromDictionary_int(dictionary, key);
+                    simulator_data.well_locations = getArrayFromDictionary_int(dictionary[key]);
                 }
 
 
@@ -401,7 +471,7 @@ namespace CUBOS
                 {
                     Well well = new Well();
 
-                    double[] well_data = getArrayFromDictionary_double(dictionary, "well_" + i);
+                    double[] well_data = getArrayFromDictionary_double(dictionary["well_" + i]);
                     well.rw = well_data[0]; well.skin = well_data[1]; well.specified_BHP = well_data[2]; well.specified_flow_rate = well_data[3];
                     well.type_calculation = well_data[4] == 0 ? Well.TypeCalculation.Specified_BHP : Well.TypeCalculation.Specified_Flow_Rate;
 
@@ -414,15 +484,29 @@ namespace CUBOS
             return simulator_data;
         }
 
+        private static double[][] getTwoColumns(string data_line)
+        {
+            double[][] data_array = new double[2][];
+            string[] column1_column2 = new string[2];
+            if (data_line.Contains('/'))
+            {
+                column1_column2 = data_line.Split('/');
+            }
+            data_array[0] = getArrayFromDictionary_double(column1_column2[0]);
+            data_array[1] = getArrayFromDictionary_double(column1_column2[1]);
+
+            return data_array;
+        }
+
         //Method Name: getArrayFromDictionary_double
         //Objectives: gets an array of doubles out of a dictionary of key-value pairs of strings in which the key is a single string "Key", and the value is a comma separated strings [value = "double1", "double2", ..]
         //Inputs: the dictionary and the key string
         //Outputs: an array of doubles
-        public static double[] getArrayFromDictionary_double(Dictionary<string, string> dictionary, string key)
+        public static double[] getArrayFromDictionary_double(string data_line)
         {
             double[] temp_array;
             List<double> temp_list = new List<double>();
-            string value = dictionary[key];
+            string value = data_line;
 
             if (value.Contains(","))
             {
@@ -447,11 +531,11 @@ namespace CUBOS
         //Objectives: gets an array of integers out of a dictionary of key-value pairs of strings in which the key is a single string "Key", and the value is a comma separated strings [value = "double1", "double2", ..]
         //Inputs: the dictionary and the key string
         //Outputs: an array of integers
-        public static int[] getArrayFromDictionary_int(Dictionary<string, string> dictionary, string key)
+        public static int[] getArrayFromDictionary_int(string data_line)
         {
             int[] temp_array;
             List<int> temp_list = new List<int>();
-            string value = dictionary[key];
+            string value = data_line;
 
             if (value.Contains(","))
             {
@@ -470,6 +554,27 @@ namespace CUBOS
             temp_array = temp_list.ToArray();
 
             return temp_array;
+        }
+
+        //Method Name: getArrayFromRepeatedValue
+        //Objectives: gets an array of integers out of a dictionary of key-value pairs of strings in which the key is a single string "Key", and the value is in the format "value*repetition"
+        //Inputs: the dictionary and the key string
+        //Outputs: an array of integers. "value*repetion" . The size of the array is equal to "repetition" and all the values are equal to "value"
+        public static int[] getArrayFromRepeatedValue(Dictionary<string, string> dictionary, string key)
+        {
+            string value = dictionary[key];
+            string[] temp_array = value.Split('*');
+            int property_value = int.Parse(temp_array[0]);
+            int property_repetition = int.Parse(temp_array[1]);
+
+            int[] output_array = new int[property_repetition];
+
+            for (int i = 0; i < output_array.Length; i++)
+            {
+                output_array[i] = property_value;
+            }
+
+            return output_array;
         }
     }
 }

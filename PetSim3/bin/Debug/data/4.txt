@@ -1,0 +1,117 @@
+#Note that using a "#" in the beginning of a line indicates a comment that is ignored in the simulator
+#also a line that contains no equal sign "=" may be used as a comment without using "#"
+# C# languages starts indexing arrays with "0" not "1", so when counting blocks in a grid, start with "0"
+#a default value means the line can be safely removed and the default value internally provided will be used
+
+[Problem]
+
+#book = Petroleum Reservoir Simulation, A Basic Approach
+#problem_number = Example 7.7
+#description = A 4 grid blokcs (2 by 2) rectangular flow of an incompressible fluid with 
+all types of boundary conditions and two production wells of both specified BHP and flow rate
+
+[RUN SPECS]
+
+#Define if the inactive blocks should be included in the naural numbering scheme or not
+#use either "active_only" to count active blocks only, or "all_blocks" to count all the blocks including inactive ones
+#default value is active_only
+natural_ordering = active_only
+
+#use "incompressible", "slightly_compressible" or "compressible"
+#default value is incompressible
+single_phase_compressibility = incompressible
+
+#use either "rectangular" or "cylindrical"
+#default value is rectangular
+grid_type = rectangular
+
+#The size of the time step for the slightly-compressible or compressible fluid problems
+#delta_t = 1
+
+#The total time of the simulation
+#time_max = 90
+
+#Defines the criteria for pressure convergence in the non-linear iterations (a percent of pressure change)
+#convergence_pressure = 0.001
+
+[Output]
+
+#define the list of properties to be output (pressure, well_rates, BHP or MBE)
+#default value is pressure, well_rate, BHP, MBE, well_block_pressure
+#what = well_block_pressure, pressure
+
+#use "console" to output in the Console and "file" to output in a file
+#default value is console
+where = file
+
+#determine if the output data is presented in a format that resembles the reservoir shape
+#default value is yes
+formatted = yes
+
+#determines if the output is stored in a single file or a separate file for each output property
+#this is only useful if "where" is set to "file"
+#default value = yes
+single_file = yes
+
+[GRID]
+
+#if a grid is homogeneous, then all the blocks in a certain direction (x, y or z) have the same
+#rock properties and dimensions
+#default value is yes
+homogeneous  = yes
+
+#Define the dimensions of the grid (x, y, z)
+grid_dimensions = 2, 2, 1
+
+#The numbers of the in-active blocks according to the natural ordering of the whole grid
+#inactive_blocks = 0, 3, 8
+
+#If a grid is homgeneous, a single value for each dimension is used
+#If it's not, the number of the values is equal to the grid dimension (x, y or z)
+delta_x = 350
+delta_y = 250
+delta_z = 30
+
+[ROCK PROPERTIES]
+
+#If a grid is homgeneous, a single value for each dimension is used
+Kx = 150
+Ky = 100
+#Kz
+porosity = 0.27
+
+#The rock compressibility is always only a single value
+#default value is 0
+#compressibility_rock = 0
+
+[PVT]
+
+FVF = 1
+viscosity = 3.5
+#compressibility_fluid = 0
+initial_pressure = 4000
+
+[BOUNDARY CONDITIONS]
+
+#use the same numbering scheme as the grid (whether active-blocks only or both active and inactive)
+#the number of values should be equal to the size of the grid according to the numbering scheme used
+#use "0" for blocks with no flow boundary of each specific type "pressure, gradient, flow"
+boundary_flow_rate = -500, 0, 0, 200
+#boundary_pressure_x
+boundary_pressure_y = 4000, 4000, 0, 0
+boundary_pressure_gradient_x = 0, 0.3, 0, 0.3
+#boundary_pressure_gradient_y
+
+[WELL DATA]
+
+#use the same numbering scheme as the grid (whether active-blocks only or both active and inactive)
+well_locations = 1, 2
+
+#for each well location, provide the details of the well in order.
+#The scheme for naming the wells,for the first well for example;
+#well_1 = rw, skin, specified_BHP, specified_flow_rate, 1)
+#where "1" is used for a "specified flow rate" well and a value of "0" indicates a "specified BHP"
+#for specified BHP well condition, provide any value for flow rate and for specified  flow rate condition, provide any value for BHP
+well_1 = 3, 0, 2000, 600, 0
+well_2 = 3, 0, 2000, 600, 1
+

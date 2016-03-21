@@ -55,14 +55,20 @@ namespace CUBOS
                     T = Transmissibility.getTransmissibility(block, next_block, block.GF_x, phase);
                     matrix_P[i][next_block.counter] = T;
                     temp -= T;
+
+                    //gravity terms
+                    constants += T * (block.water_density + next_block.water_density) * 0.5 * (next_block.depth - block.depth);
                 }
 
                 if (block.west_counter != -1)
                 {
                     next_block = grid[block.west_counter];
-                    T = Transmissibility.getTransmissibility(block, next_block, block.GF_x, phase);
+                    T = Transmissibility.getTransmissibility(block, next_block, next_block.GF_x, phase);
                     matrix_P[i][next_block.counter] = T;
                     temp -= T;
+
+                    //gravity terms
+                    constants += T * (block.water_density + next_block.water_density) * 0.5 * (next_block.depth - block.depth);
                 }
 
                 if (block.north_counter != -1)
@@ -71,14 +77,20 @@ namespace CUBOS
                     T = Transmissibility.getTransmissibility(block, next_block, block.GF_y, phase);
                     matrix_P[i][next_block.counter] = T;
                     temp -= T;
+
+                    //gravity terms
+                    constants += T * (block.water_density + next_block.water_density) * 0.5 * (next_block.depth - block.depth);
                 }
 
                 if (block.south_counter != -1)
                 {
                     next_block = grid[block.south_counter];
-                    T = Transmissibility.getTransmissibility(block, next_block, block.GF_y, phase);
+                    T = Transmissibility.getTransmissibility(block, next_block, next_block.GF_y, phase);
                     matrix_P[i][next_block.counter] = T;
                     temp -= T;
+
+                    //gravity terms
+                    constants += T * (block.water_density + next_block.water_density) * 0.5 * (next_block.depth - block.depth);
                 }
 
                 //#########################################################################################
@@ -130,7 +142,7 @@ namespace CUBOS
         //Inputs: an array of variables of type "GridBlock", the value of the time step between subsequent runs and the value of the total time duration
         //Inputs: a variable of type OutPut2D used to display the results
         //Outputs: N/A
-        public static void slightly_compressible(GridBlock[] grid, double delta_t, double time_max, SinglePhase.OutPut2D output)
+        public static void slightly_compressible(GridBlock[] grid, double delta_t, double time_max, SinglePhase.OutPut2D output, PVT pvt)
         {
             int grid_length = grid.Length;
             double[][] matrix_P = new double[grid_length][];
@@ -177,6 +189,9 @@ namespace CUBOS
                         T = Transmissibility.getTransmissibility(block, next_block, block.GF_x, phase);
                         matrix_P[i][next_block.counter] = T;
                         temp -= T;
+
+                        //gravity terms
+                        constants += T * (block.water_density + next_block.water_density) * 0.5 * (next_block.depth - block.depth);
                     }
 
                     if (block.west_counter != -1)
@@ -185,6 +200,9 @@ namespace CUBOS
                         T = Transmissibility.getTransmissibility(block, next_block, next_block.GF_x, phase);
                         matrix_P[i][next_block.counter] = T;
                         temp -= T;
+
+                        //gravity terms
+                        constants += T * (block.water_density + next_block.water_density) * 0.5 * (next_block.depth - block.depth);
                     }
 
                     if (block.north_counter != -1)
@@ -193,6 +211,9 @@ namespace CUBOS
                         T = Transmissibility.getTransmissibility(block, next_block, block.GF_y, phase);
                         matrix_P[i][next_block.counter] = T;
                         temp -= T;
+
+                        //gravity terms
+                        constants += T * (block.water_density + next_block.water_density) * 0.5 * (next_block.depth - block.depth);
                     }
 
                     if (block.south_counter != -1)
@@ -201,6 +222,9 @@ namespace CUBOS
                         T = Transmissibility.getTransmissibility(block, next_block, next_block.GF_y, phase);
                         matrix_P[i][next_block.counter] = T;
                         temp -= T;
+
+                        //gravity terms
+                        constants += T * (block.water_density + next_block.water_density) * 0.5 * (next_block.depth - block.depth);
                     }
 
                     //#########################################################################################
@@ -233,7 +257,8 @@ namespace CUBOS
 
                     //#########################################################################################
                     //Accumulation terms
-                    accumulation_term = block.bulk_volume * block.porosity * (block.Cf + block.C) / (a * block.Bw * delta_t);
+                    //reference FVF = 1
+                    accumulation_term = block.bulk_volume * block.porosity * (block.Cf + block.C) / (a * 1 * delta_t);
                     constants -= accumulation_term * block.pressure;
                     temp -= accumulation_term;
 
@@ -273,6 +298,15 @@ namespace CUBOS
                         else
                         {
                             block.well_flow_rate = (new_P[i] - block.BHP) * block.well_transmissibility;
+                            if (block.well_flow_rate < 50)
+                            {
+                                block.well_type = GridBlock.WellType.Specified_Flow_Rate;
+                                block.well_flow_rate = 0;
+                                //Re do this iteration as the BHP of the well went below the minimum
+                                current_time -= delta_t;
+                                skip = true;
+                                break;
+                            }
                         }
                     }
                 }
@@ -284,7 +318,7 @@ namespace CUBOS
                     //calculate old time step part of the MBE
                     IMB_accumulation = MBE.accumulation(grid);
 
-                    updatePropertiesSlightlyCompressible(new_P, grid);
+                    updatePropertiesSlightlyCompressible(new_P, grid, pvt);
 
                     //calculate new time step part of the MBE
                     IMB_accumulation = MBE.accumulation(grid) - IMB_accumulation;
@@ -294,9 +328,6 @@ namespace CUBOS
                     MBE.IMB = IMB;
 
                     output.write(IMB, current_time + delta_t);
-
-                    //Console.WriteLine(new_P[0] + ", " + new_P[1] + ", " + new_P[2] + ", " + new_P[3]);
-                    //Console.ReadKey();
                 }
             }
 
@@ -307,25 +338,18 @@ namespace CUBOS
         //The solution is time-dependent
         //Inputs: an array of variables of type "GridBlock", the value of the time step between subsequent runs and the value of the total time duration
         //Outputs: N/A
-        public static void compressible(GridBlock[] grid, double delta_t, double time_max, double convergence_pressure, PVT pvt)
+        public static void compressible(GridBlock[] grid, double delta_t, double time_max, double convergence_pressure, SinglePhase.OutPut2D output, PVT pvt)
         {
             int grid_length = grid.Length;
-
             double[][] matrix_P = new double[grid_length][];
             double[] matrix_C = new double[grid_length];
-            double[] new_P = new double[grid_length];
-            double[] old_iteration_P = new double[grid_length];
-            double new_pressure = 0;
 
             const double a = 5.614583;
             double accumulation_term;
 
-            //The non-linear pressure solution convergence maximum number of iterations
-            const int iterations_max = 10;
-            double new_phi;
-            double new_FVF;
-            double delta_phi_by_FVF;
-            double delta_p;
+            double IMB;
+            double IMB_production;
+            double IMB_accumulation;
 
             GridBlock block;
             GridBlock next_block;
@@ -334,14 +358,33 @@ namespace CUBOS
             double temp = 0;
             double constants = 0;
             double T = 0;
+            double[] new_P = new double[grid_length];
+            double[] old_P = new double[grid_length];
+            double[] old_FVF = new double[grid_length];
+            double[] initial_pressure = new double[grid_length];
+
+            GridBlock[] old_grid = new GridBlock[grid_length];
+
+            output.write(0, 0);
 
             for (double current_time = 0; current_time < time_max; current_time += delta_t)
             {
-                //Loop non-linear iterations
-                //Break out of the loop if the pressure solution converges to the specified criterion or after a certain number of iterations whichever is sooner
-                for (int iteration = 0; iteration < iterations_max; iteration++)
-                {
+                skip = false;
 
+                //Array.Copy(grid, old_grid, grid_length);
+                for (int i = 0; i < grid_length; i++)
+                {
+                    old_FVF[i] = grid[i].Bw;
+                    initial_pressure[i] = grid[i].pressure;
+                    new_P[i] = 0;
+                }
+
+                int counter = 0;
+                do
+                {
+                    counter += 1;
+                    Array.Copy(new_P, old_P, grid_length);
+                    matrix_C = new double[grid_length];
                     #region grid blocks loop
                     for (int i = 0; i < grid_length; i++)
                     {
@@ -361,6 +404,9 @@ namespace CUBOS
                             T = Transmissibility.getTransmissibility(block, next_block, block.GF_x, phase);
                             matrix_P[i][next_block.counter] = T;
                             temp -= T;
+
+                            //gravity terms
+                            constants += T * (block.water_density + next_block.water_density) * 0.5 * (next_block.depth - block.depth);
                         }
 
                         if (block.west_counter != -1)
@@ -369,6 +415,9 @@ namespace CUBOS
                             T = Transmissibility.getTransmissibility(block, next_block, next_block.GF_x, phase);
                             matrix_P[i][next_block.counter] = T;
                             temp -= T;
+
+                            //gravity terms
+                            constants += T * (block.water_density + next_block.water_density) * 0.5 * (next_block.depth - block.depth);
                         }
 
                         if (block.north_counter != -1)
@@ -377,6 +426,9 @@ namespace CUBOS
                             T = Transmissibility.getTransmissibility(block, next_block, block.GF_y, phase);
                             matrix_P[i][next_block.counter] = T;
                             temp -= T;
+
+                            //gravity terms
+                            constants += T * (block.water_density + next_block.water_density) * 0.5 * (next_block.depth - block.depth);
                         }
 
                         if (block.south_counter != -1)
@@ -385,6 +437,9 @@ namespace CUBOS
                             T = Transmissibility.getTransmissibility(block, next_block, next_block.GF_y, phase);
                             matrix_P[i][next_block.counter] = T;
                             temp -= T;
+
+                            //gravity terms
+                            constants += T * (block.water_density + next_block.water_density) * 0.5 * (next_block.depth - block.depth);
                         }
 
                         //#########################################################################################
@@ -417,45 +472,38 @@ namespace CUBOS
 
                         //#########################################################################################
                         //Accumulation terms
-                        if (iteration == 0)
+                        //reference FVF = 1
+                        double delta_p;
+                        double new_FVF = 0;
+                        if (counter == 1)
                         {
-                            new_pressure = block.pressure - 1;
+                            delta_p = -1;
+
+                            double FVF_constants = 14.7 / (60 + 460) * (190 + 460);
+                            double z_factor = PVT.calculateZ(738.44, 418.38, block.pressure + delta_p, 190, 1);
+                            new_FVF = FVF_constants * z_factor / (block.pressure + delta_p) / 1;
                         }
                         else
                         {
-                            new_pressure = new_P[i];
+                            delta_p = block.pressure - initial_pressure[i];
+                            new_FVF = block.Bw;
                         }
-
-                        new_phi = Vp_Calculator.chord_slope_Vp(block.Cf, block.porosity, new_pressure, block.pressure);
-                        new_FVF = pvt.getWaterFVF(new_pressure);
-                        delta_phi_by_FVF = (new_phi / new_FVF) - (block.porosity / block.Bw);
-                        delta_p = new_pressure - block.pressure;
-
-                        accumulation_term = block.bulk_volume / (a * delta_t) * delta_phi_by_FVF / delta_p;
-                        constants -= accumulation_term * block.pressure;
+                        accumulation_term = block.bulk_volume / (a * delta_t) * block.porosity * (1 / new_FVF - 1 / old_FVF[i]) / delta_p;
+                        constants -= accumulation_term * initial_pressure[i];
                         temp -= accumulation_term;
 
                         //#########################################################################################
-                        matrix_P[i][i] = temp;
+                        matrix_P[i][block.counter] = temp;
                         matrix_C[i] = constants;
                     }
                     #endregion
 
                     new_P = solveForP(matrix_P, matrix_C);
 
-                    //Check for convergence
-                    if (iteration != 0)
-                    {
-                        //check
-                        if (PVT.checkPressureConvergence(new_P, old_iteration_P) <= convergence_pressure)
-                        {
-                            break;
-                        }
-                    }
+                    updatePropertiesCompressible(new_P, grid, pvt);
 
-                    old_iteration_P = new_P.Clone() as double[];
-                }
-
+                } while (PVT.checkPressureConvergence(new_P, old_P) > convergence_pressure && counter < 20);
+                
 
                 #region This code handle the transformation of a specified flow_rate well into a specified BHP well
                 for (int i = 0; i < grid.Length; i++)
@@ -482,6 +530,19 @@ namespace CUBOS
                                 break;
                             }
                         }
+                        else
+                        {
+                            block.well_flow_rate = (new_P[i] - block.BHP) * block.well_transmissibility;
+                            if (block.well_flow_rate < 50)
+                            {
+                                block.well_type = GridBlock.WellType.Specified_Flow_Rate;
+                                block.well_flow_rate = 0;
+                                //Re do this iteration as the BHP of the well went below the minimum
+                                current_time -= delta_t;
+                                skip = true;
+                                break;
+                            }
+                        }
                     }
                 }
                 #endregion
@@ -489,12 +550,30 @@ namespace CUBOS
 
                 if (!skip)
                 {
-                    updatePropertiesCompressible(new_P, grid, pvt);
-                    Console.WriteLine(new_P[0] + ", " + new_P[1] + ", " + new_P[2] + ", " + new_P[3]);
-                    Console.ReadKey();
+                    //calculate old time step part of the MBE
+                    IMB_accumulation = MBE.accumulation(grid, old_FVF);
+
+                    //updatePropertiesSlightlyCompressible(new_P, grid, pvt);
+
+                    //calculate new time step part of the MBE
+                    IMB_accumulation = MBE.accumulation(grid) - IMB_accumulation;
+                    IMB_production = MBE.production(grid);
+                    IMB = IMB_accumulation / IMB_production / delta_t;
+                    //store the result in the MBE class for easy handling between different methods
+                    MBE.IMB = IMB;
+
+                    output.write(IMB, current_time + delta_t);
+                }
+                else
+                {
+                    updatePropertiesCompressible(initial_pressure, grid, pvt);
+                }
+
+                if (current_time == 5)
+                {
+                    delta_t = 5;
                 }
             }
-
         }
 
         //#############################################################################################
@@ -527,17 +606,18 @@ namespace CUBOS
 
         //Method Name: updatePropertiesSlightlyCompressible
         //Objectives: uses the fluid and rock compressibilities to calculate the new properties for the slightly compressible solver
-        //Inputs: values of the new pressures and the array representing the grid blocks
+        //Inputs: values of the new pressures and the array representing the grid blocks and object containing the data for pvt calculations
         //Outputs: this method internally updates the values of the fluid PVT and rock properties of each grid block
-        private static void updatePropertiesSlightlyCompressible(double[] new_P, GridBlock[] grid)
+        private static void updatePropertiesSlightlyCompressible(double[] new_P, GridBlock[] grid, PVT pvt)
         {
             GridBlock block;
             for (int i = 0; i < grid.Length; i++)
             {
                 block = grid[i];
                 block.pressure = new_P[i];
-                block.Bw = PVT.chord_slope_FVF(block.C, block.Bw, new_P[i], block.pressure);
-                block.porosity = Vp_Calculator.chord_slope_Vp(block.Cf, block.porosity, new_P[i], block.pressure);
+                //block.Bw = PVT.chord_slope_FVF(block.C, block.pressure);
+                //block.water_viscosity = pvt.getWaterViscosity(block.pressure);
+                //block.porosity = Vp_Calculator.chord_slope_Vp(block.Cf, block.porosity, new_P[i], block.pressure);
                 if (block.type == GridBlock.Type.Well)
                 {
                     block.well_transmissibility = Well.getTransmissibility(block, block.well_geometric_factor, Well.Phase.Water);
@@ -553,22 +633,30 @@ namespace CUBOS
         {
             GridBlock block;
             double new_pressure;
+            const double a = 5.614583;
+            double FVF_constants = 14.7 / (60 + 460) * (190 + 460);
+
             for (int i = 0; i < grid.Length; i++)
             {
                 block = grid[i];
                 new_pressure = new_P[i];
 
-                block.Bw = pvt.getWaterFVF(new_pressure);
+                double z_factor = PVT.calculateZ(738.44, 418.38, new_pressure, 190, 1);
+                double old_z_factor = PVT.calculateZ(738.44, 418.38, block.pressure, 190, 1);
+
+                block.Bw = FVF_constants * z_factor / new_pressure / 1;
+
                 block.water_viscosity = pvt.getWaterViscosity(new_pressure);
-
-                block.porosity = Vp_Calculator.chord_slope_Vp(block.Cf, block.porosity, new_pressure, block.pressure);
-
-                block.pressure = new_pressure;
+                
 
                 if (block.well_transmissibility != 0)
                 {
                     block.well_transmissibility = Well.getTransmissibility(block, block.well_geometric_factor, Well.Phase.Water);
                 }
+
+                block.water_density = block.water_density * new_pressure * old_z_factor / (block.pressure * z_factor);
+
+                block.pressure = new_pressure;
             }
         }
 
