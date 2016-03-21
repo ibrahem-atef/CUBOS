@@ -13,14 +13,20 @@
 
 natural_ordering = active_only
 
-single_phase_compressibility = incompressible
+single_phase_compressibility = slightly_compressible
 
 grid_type = rectangular
 
+delta_t = 1
+
+time_max = 60
+
+convergence_pressure = 0.001
+
 [Output]
 
-#default value is pressure, well_rate, BHP, MBE, well_block_pressure
-#what = well_block_pressure, pressure
+#default value will output all properties; pressure, well_rate, BHP, MBE, well_block_pressure
+#what = well_rate, well_block_pressure
 
 where = file
 
@@ -55,18 +61,18 @@ Ky = 208 ,214.4 ,208 ,216 ,224 ,216 ,212 ,224 ,232 ,217.6 ,220.8 ,218.4 ,230.4 ,
 
 porosity = 0.229 ,0.22 ,0.217 ,0.232 ,0.226 ,0.217 ,0.225 ,0.235 ,0.23 ,0.21 ,0.219 ,0.226 ,0.235 ,0.23 ,0.22 ,0.216 ,0.183 ,0.195 ,0.205 ,0.212 ,0.218 ,0.225 ,0.232 ,0.232 ,0.225 ,0.219 ,0.185 ,0.195 ,0.205 ,0.213 ,0.216 ,0.221 ,0.225 ,0.226 ,0.22 ,0.215 ,0.207 ,0.2 ,0.19 ,0.196 ,0.205 ,0.207 ,0.21 ,0.216 ,0.22 ,0.223 ,0.215 ,0.21 ,0.203 ,0.2 ,0.19 ,0.195 ,0.2 ,0.204 ,0.207 ,0.215 ,0.205 ,0.192 ,0.197 ,0.202
 
-
+compressibility_rock = 0
 
 [PVT]
 
-FVF = 1
-viscosity = 1
-compressibility_fluid = 0
-density = 62.4
+#FVF = 1
+viscosity = 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000 / 0.918, 0.92, 0.9243, 0.9372, 0.9494, 0.9650, 0.9812, 1.0019
+compressibility_fluid = 0.000009
+density = 52.4
 
 [BOUNDARY CONDITIONS]
 
-#No-Flow Boundary Conditions
+initial_pressure = 7750
 
 [WELL DATA]
 
@@ -79,7 +85,7 @@ well_locations = 29, 46
 #where "1" is used for a "specified flow rate" well and a value of "0" indicates a "specified BHP"
 #for specified BHP well condition, provide any value for flow rate and for specified  flow rate condition, provide any value for BHP
 
-well_1 = 3, 0, 0, -2600, 1
-well_2 = 3, 0, 5600, 0, 0
+well_1 = 3, 0, 5600, -2600, 0
+well_2 = 3, 0, 0, 650, 1
 
 

@@ -87,6 +87,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="bin\Debug\data\1.txt" />
+    <Content Include="bin\Debug\data\10.txt" />
+    <Content Include="bin\Debug\data\10_output.txt" />
+    <Content Include="bin\Debug\data\10_well_block_pressure_output.txt" />
+    <Content Include="bin\Debug\data\10_well_rate_output.txt" />
     <Content Include="bin\Debug\data\1_output.txt" />
     <Content Include="bin\Debug\data\2.txt" />
     <Content Include="bin\Debug\data\2_output.txt" />
@@ -100,8 +104,13 @@
     <Content Include="bin\Debug\data\6_output.txt" />
     <Content Include="bin\Debug\data\7.txt" />
     <Content Include="bin\Debug\data\7_output.txt" />
+    <Content Include="bin\Debug\data\7_well_rate_output.txt" />
     <Content Include="bin\Debug\data\8.txt" />
     <Content Include="bin\Debug\data\8_output.txt" />
+    <Content Include="bin\Debug\data\9.txt" />
+    <Content Include="bin\Debug\data\9_output.txt" />
+    <Content Include="bin\Debug\data\9_well_block_pressure_output.txt" />
+    <Content Include="bin\Debug\data\9_well_rate_output.txt" />
     <Content Include="SinglePhase\Readme.txt" />
   </ItemGroup>
   <ItemGroup>
