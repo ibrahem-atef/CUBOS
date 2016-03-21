@@ -74,6 +74,28 @@ namespace SinglePhase
             return temp;
         }
 
+        public static double accumulation(GridBlock[] grid, double[] FVF)
+        {
+            //set grid size
+            int length = grid.Length;
+
+            //variables to store material balance error
+            double temp = 0;
+            //double CMB = 0;
+
+            GridBlock block;
+
+            for (int i = 0; i < length; i++)
+            {
+                block = grid[i];
+
+                //boundary conditions
+                temp += block.bulk_volume / a * block.porosity / FVF[i];
+            }
+
+            return temp;
+        }
+
         //a method for storing and retrieving the value for IMB
         public static double IMB { get; set; }
     }
