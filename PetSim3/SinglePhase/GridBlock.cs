@@ -57,7 +57,7 @@ namespace CUBOS
         public int delta_x;
         public int delta_y;
         public int h;
-        public int depth;
+        public double depth;
         public double r;
         public double theta;
 
