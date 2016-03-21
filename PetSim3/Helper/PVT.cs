@@ -139,7 +139,9 @@ namespace CUBOS
             if (pressure >= bubble_point_pressure)
             {
                 Y = us_w_d[0]; X = us_w_d[2];
-                return extrapolate(Y, X, pressure);
+                //return extrapolate(Y, X, pressure);
+                return lookUp(Y, X, pressure);
+
             }
             else
             {
@@ -186,11 +188,11 @@ namespace CUBOS
 
         //Method name: chord_slope_FVF
         //Objectives: calculates the FVF property at a future point pressure "P at time n+1" using the value of compressibility
-        //Inputs: the value of the compressibility, the old value of the FVF property "FVF at time n" and the old and new pressures to calculate the pressure difference
+        //Inputs: the value of the compressibility and the new pressure to calculate the pressure difference
         //Outputs: the new value of the FVF propery "FVF at time n+1"
-        public static double chord_slope_FVF(double C, double old_FVF, double new_pressure, double old_pressure)
+        public static double chord_slope_FVF(double C, double new_pressure)
         {
-            return old_FVF * (1 - C * (new_pressure - old_pressure));
+            return 1 / (1 + C * (new_pressure - 14.7));
         }
 
         //Method Name: initializePressure
@@ -234,7 +236,7 @@ namespace CUBOS
                 //update density-array
                 for (int i = 0; i < length; i++)
                 {
-                    new_FVF = chord_slope_FVF(C, FVF, pressure_array[i], pressure);
+                    new_FVF = chord_slope_FVF(C, pressure_array[i]);
                     density_array[i] = density_standard / new_FVF;
                 }
 
@@ -250,7 +252,7 @@ namespace CUBOS
                     //update density-array
                     for (int i = 0; i < length; i++)
                     {
-                        new_FVF = chord_slope_FVF(C, FVF, pressure_array[i], pressure);
+                        new_FVF = chord_slope_FVF(C, pressure_array[i]);
                         density_array[i] = density_standard / new_FVF;
                     }
                 }
@@ -273,7 +275,64 @@ namespace CUBOS
                 temp[i] = Math.Abs(new_P[i] - old_P[i]) / old_P[i];
             }
 
-            return temp.Max();
+            double max = temp.Max();
+            return max;
+        }
+
+        // uses a Newton-Rapshon iteration to calculate the natural gas Z factor based on Dranchuk and Abu-Kassem equations
+        public static double calculateZ(double Pc, double Tc, double P, double T, double z_initial)
+        {
+            double[] A = new double[] {0.3265, -1.07, -0.5339, 0.01569, -0.05165, 0.5475, -0.7361, 0.1844, 0.1056, 0.6134, 0.721};
+
+            double z, density_reduced, Pr, Tr;
+
+            Pr = P / Pc;
+            Tr = (T + 460) / Tc;
+
+            z = z_initial;
+
+            double C0 = (A[0] + A[1] / Tr + A[2] / Math.Pow(Tr, 3) + A[3] / Math.Pow(Tr, 4) + A[4] / Math.Pow(Tr, 5));
+            double C1 = (A[5] + A[6] / Tr + A[7] / Math.Pow(Tr, 2));
+            double C2 = -1 * A[8] * (A[6] / Tr + A[7] / Math.Pow(Tr, 2));
+
+            density_reduced = 0.27 * Pr / (z * Tr);
+
+            double f, f_dash;
+
+            int counter = 0;
+            do
+            {
+                f = 1
+                    + C0 * density_reduced
+                    + C1 * Math.Pow(density_reduced, 2)
+                    + C2 * Math.Pow(density_reduced, 5)
+                    + A[9] * (1 + A[10] * Math.Pow(density_reduced, 2)) * Math.Pow(density_reduced, 2) / Math.Pow(Tr, 3)
+                    * Math.Exp(-1 * A[10] * Math.Pow(density_reduced, 2))
+                    - 0.27 * Pr / (density_reduced * Tr)
+                ;
+
+                f_dash = C0
+                    + 2 * C1 * density_reduced
+                    + 5 * C2 * Math.Pow(density_reduced, 4)
+                    + A[9] * (1 + A[10] * Math.Pow(density_reduced, 2)) * Math.Pow(density_reduced, 2) / Math.Pow(Tr, 3)
+                    * Math.Exp(-1 * A[10] * Math.Pow(density_reduced, 2))
+                    * -2 * A[10] * density_reduced
+                    + Math.Exp(-1 * A[10] * Math.Pow(density_reduced, 2))
+                    * A[9] * (2 + 4 * A[10] * Math.Pow(density_reduced, 2)) * density_reduced / Math.Pow(Tr, 3)
+                    + 0.27 * Pr / (Tr * Math.Pow(density_reduced, 2))
+                    ;
+
+                density_reduced = density_reduced - f / f_dash;
+                counter += 1;
+            } while (counter < 5);
+
+            return 0.27 * Pr / (density_reduced * Tr);
+        }
+
+        // calculate natural gas density 
+        public static double calculateGasDensity(double pressure, double molecular_weight, double z_factor, double temperature)
+        {
+            return pressure * molecular_weight / (z_factor * (temperature + 460) * 10.73);
         }
     }
 }
