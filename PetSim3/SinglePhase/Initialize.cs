@@ -8,6 +8,9 @@ namespace CUBOS
 {
     class Initialize
     {
+        public const double gamma_c = 0.00021584;
+        public const double gravity_c = 32.174;
+
         //Method Name: initializeSimulationSinglePhase
         //Objectives: reads the data from the data object passed to it and assign the values to the blocks after constructing the grid and starting the solver
         //Inputs: a variable of type "SimulatorData" that contains all the simulation data read from the data input file
@@ -41,14 +44,17 @@ namespace CUBOS
             //The gridding technique used here is for only a single row or a single column
             int[] delta_X = new int[x];
             int[] delta_Y = new int[y];
-            int[] delta_Z = new int[z];
+            int[] delta_Z = new int[size];
+
+            double[] depth_top_array = new double[size];
+            double depth_top;
 
             //Homogeneous grid sizing
             if (homogeneous)
             {
                 for (int i = 0; i < x; i++) { delta_X[i] = data.delta_X; }
                 for (int i = 0; i < y; i++) { delta_Y[i] = data.delta_Y; }
-                for (int i = 0; i < z; i++) { delta_Z[i] = data.delta_Z; }
+                for (int i = 0; i < size; i++) { delta_Z[i] = data.delta_Z; }
             }
             //Heterogeneous grid sizing
             else
@@ -56,6 +62,8 @@ namespace CUBOS
                 delta_X = data.delta_X_array;
                 delta_Y = data.delta_Y_array;
                 delta_Z = data.delta_Z_array;
+
+                depth_top_array = data.depth_top_array;
             }
             #endregion
 
@@ -95,6 +103,11 @@ namespace CUBOS
 
             double FVF = data.FVF;
             double viscosity = data.viscosity;
+            double density = data.density;
+            double molecular_weight = data.molecular_weight;
+            double temperature = data.temperature;
+
+            PVT pvt = new PVT(us_w_d: data.water_data);
 
             //For slightly-compressibly fluid
             double compressibility_fluid = data.compressibility_fluid;
@@ -102,7 +115,7 @@ namespace CUBOS
             //For compressible fluid, this data is used for constructing the PVT table
             double[][] g_data = data.g_data;
 
-            PVT pvt = new PVT(g_data: g_data);
+            //PVT pvt = new PVT(g_data: g_data);
             #endregion
 
             #region  Initialize boundary conditions
@@ -154,6 +167,7 @@ namespace CUBOS
                 //Assign PVT and rock properties
 
                 block.delta_x = delta_X[block.x]; block.delta_y = delta_Y[block.y]; block.h = delta_Z[counter];
+                block.depth = depth_top_array[counter] + block.h * 0.5;
                 block.bulk_volume = block.delta_x * block.delta_y * block.h;
 
                 block.Kx = Kx_data[counter]; block.Ky = Ky_data[counter]; block.Kz = Kz_data[counter];
@@ -164,30 +178,48 @@ namespace CUBOS
                 if (compressibility == TypeDefinitions.Compressibility.Compressible)
                 {
                     block.water_viscosity = pvt.getWaterViscosity(initial_pressure);
-                    block.So = 0; block.Sg = 0; block.Sw = 1;
-                    block.Kro = 0; block.Krg = 0; block.Krw = 1;
-                    block.Cf = compressibility_rock; block.C = compressibility_fluid;
 
-                    block.Bw = pvt.getWaterFVF(initial_pressure);
-                    block.porosity = Vp_Calculator.chord_slope_Vp(compressibility_rock, porosity[counter], block.pressure, initial_pressure);
-                }
-                else if (compressibility == TypeDefinitions.Compressibility.Slightly_Compressible)
-                {
-                    //For slightly compressibly fluids, viscosity is independent of pressure
-                    block.water_viscosity = viscosity;
                     //For a single phase fluid, saturation and relative permeabilities of the fluid is equal to unity
                     block.So = 0; block.Sg = 0; block.Sw = 1;
                     block.Kro = 0; block.Krg = 0; block.Krw = 1;
                     //For slightly compressible fluids, the values of rock compressibility "Cf" and fluid compressibility C_fluid are used to estimate the new values
                     block.Cf = compressibility_rock; block.C = compressibility_fluid;
 
-                    block.Bw = PVT.chord_slope_FVF(compressibility_fluid, FVF, block.pressure, initial_pressure);
+                    const double a = 5.614583;
+                    double FVF_constants = 14.7 / (60 + 460) * (190 + 460) / 1;
+                    double z_factor = PVT.calculateZ(738.44, 418.38, initial_pressure, 190, 1);
+                    block.Bw = FVF_constants * z_factor / initial_pressure;
+                    density = PVT.calculateGasDensity(initial_pressure, molecular_weight, z_factor, temperature);
+                    block.water_density = density * gamma_c * gravity_c;
+                    block.porosity = Vp_Calculator.chord_slope_Vp(compressibility_rock, porosity[counter], block.pressure, initial_pressure);
+
+                }
+                else if (compressibility == TypeDefinitions.Compressibility.Slightly_Compressible)
+                {
+                    //For slightly compressibly fluids, viscosity is independent of pressure
+                    if (viscosity > 0)
+                    {
+                        block.water_viscosity = viscosity;
+                    }
+                    else
+                    {
+                        block.water_viscosity = pvt.getWaterViscosity(initial_pressure);
+                    }
+                    
+                    //For a single phase fluid, saturation and relative permeabilities of the fluid is equal to unity
+                    block.So = 0; block.Sg = 0; block.Sw = 1;
+                    block.Kro = 0; block.Krg = 0; block.Krw = 1;
+                    //For slightly compressible fluids, the values of rock compressibility "Cf" and fluid compressibility C_fluid are used to estimate the new values
+                    block.Cf = compressibility_rock; block.C = compressibility_fluid;
+
+                    block.Bw = PVT.chord_slope_FVF(compressibility_fluid, 14.7);
+                    block.water_density = density * gamma_c * gravity_c;
                     block.porosity = Vp_Calculator.chord_slope_Vp(compressibility_rock, porosity[counter], block.pressure, initial_pressure);
 
                 }
                 else
                 {
-                    block.water_viscosity = viscosity; block.Bw = FVF;
+                    block.water_viscosity = viscosity; block.Bw = FVF; block.water_density = density * gamma_c * gravity_c;
                     block.porosity = porosity[counter];
                     block.So = 0; block.Sg = 0; block.Sw = 1;
                     block.Kro = 0; block.Krg = 0; block.Krw = 1;
@@ -246,7 +278,7 @@ namespace CUBOS
                         block.well_type = GridBlock.WellType.Specified_Flow_Rate;
                         block.well_flow_rate = well.specified_flow_rate;
                         block.specified_BHP = well.specified_BHP;
-
+                        block.skin = well.skin;
                         block.rw = well.rw;
                         double well_geometric_factor = Well.getGeometricFactor(block);
                         block.well_geometric_factor = well_geometric_factor;
@@ -283,13 +315,13 @@ namespace CUBOS
                     {
                         x_counter = block.east_counter != -1 ? block.east_counter : block.west_counter;
 
-                        block.GF_x = Transmissibility.getGeometricFactor(block, grid[x_counter], grid_type, direction_x);
+                        block.GF_x = x_counter != -1 ? Transmissibility.getGeometricFactor(block, grid[x_counter], grid_type, direction_x) : 0;
                     }
                     if (y > 1)
                     {
                         y_counter = block.north_counter != -1 ? block.north_counter : block.south_counter;
 
-                        block.GF_y = Transmissibility.getGeometricFactor(block, grid[y_counter], grid_type, direction_y);
+                        block.GF_y = y_counter != -1 ? Transmissibility.getGeometricFactor(block, grid[y_counter], grid_type, direction_y) : 0;
                     }
                 }
             }
@@ -308,11 +340,11 @@ namespace CUBOS
             }
             else if (compressibility == TypeDefinitions.Compressibility.Slightly_Compressible)
             {
-                SolverSinglePhase.slightly_compressible(grid, delta_t, time_max, output);
+                SolverSinglePhase.slightly_compressible(grid, delta_t, time_max, output, pvt);
             }
             else
             {
-                SolverSinglePhase.compressible(grid, delta_t, time_max, convergence_pressure, pvt);
+                SolverSinglePhase.compressible(grid, delta_t, time_max, convergence_pressure, output, pvt);
             }
             #endregion
         }
@@ -553,7 +585,7 @@ namespace CUBOS
                     //For slightly compressible fluids, the values of rock compressibility "Cf" and fluid compressibility C_fluid are used to estimate the new values
                     block.Cf = compressibility_rock; block.C = compressibility_fluid;
 
-                    block.Bw = PVT.chord_slope_FVF(compressibility_fluid, FVF, block.pressure, initial_pressure);
+                    block.Bw = PVT.chord_slope_FVF(compressibility_fluid, initial_pressure);
                     block.porosity = Vp_Calculator.chord_slope_Vp(compressibility_rock, porosity[counter], block.pressure, initial_pressure);
 
                 }
@@ -676,7 +708,7 @@ namespace CUBOS
             }
             else
             {
-                SolverSinglePhase.compressible(grid, delta_t, time_max, convergence_pressure, pvt);
+                //SolverSinglePhase.compressible(grid, delta_t, time_max, convergence_pressure, output, pvt);
             }
             #endregion
         }
